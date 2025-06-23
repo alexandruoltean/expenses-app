@@ -13,6 +13,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
+import { MatTooltipModule } from '@angular/material/tooltip';
 import { FormControl, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Expense, CreateExpenseRequest } from '../../models/expense.model';
@@ -46,6 +47,7 @@ import {
     MatSnackBarModule,
     MatDialogModule,
     MatChipsModule,
+    MatTooltipModule,
     BaseChartDirective
   ],
   templateUrl: './expense-list.component.html',
@@ -454,6 +456,88 @@ export class ExpenseListComponent implements OnInit {
     
     path += ` L 200,80 Z`;
     return path;
+  }
+
+  // New Dashboard Methods
+  getTodaySpending(): number {
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    
+    return this.filteredExpenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.date);
+        expenseDate.setHours(0, 0, 0, 0);
+        return expenseDate.getTime() === today.getTime();
+      })
+      .reduce((total, expense) => total + expense.amount, 0);
+  }
+
+  getCurrentMonthTotal(): number {
+    const now = new Date();
+    const currentMonth = now.getMonth();
+    const currentYear = now.getFullYear();
+    
+    return this.filteredExpenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.date);
+        return expenseDate.getMonth() === currentMonth && expenseDate.getFullYear() === currentYear;
+      })
+      .reduce((total, expense) => total + expense.amount, 0);
+  }
+
+  getLastMonthTotal(): number {
+    const now = new Date();
+    const lastMonth = now.getMonth() === 0 ? 11 : now.getMonth() - 1;
+    const lastMonthYear = now.getMonth() === 0 ? now.getFullYear() - 1 : now.getFullYear();
+    
+    return this.filteredExpenses
+      .filter(expense => {
+        const expenseDate = new Date(expense.date);
+        return expenseDate.getMonth() === lastMonth && expenseDate.getFullYear() === lastMonthYear;
+      })
+      .reduce((total, expense) => total + expense.amount, 0);
+  }
+
+  getMonthlyGrowth(): number {
+    const current = this.getCurrentMonthTotal();
+    const last = this.getLastMonthTotal();
+    
+    if (last === 0) return current > 0 ? 100 : 0;
+    return ((current - last) / last) * 100;
+  }
+
+  getCurrentMonthPercentage(): number {
+    const current = this.getCurrentMonthTotal();
+    const last = this.getLastMonthTotal();
+    const max = Math.max(current, last, 100);
+    return (current / max) * 100;
+  }
+
+  getLastMonthPercentage(): number {
+    const current = this.getCurrentMonthTotal();
+    const last = this.getLastMonthTotal();
+    const max = Math.max(current, last, 100);
+    return (last / max) * 100;
+  }
+
+  getHighestDayAmount(): number {
+    const days = this.getDailyExpenses();
+    return Math.max(...days.map(d => d.amount));
+  }
+
+  getMostEfficientDay(): string {
+    const days = this.getDailyExpenses();
+    const minDay = days.reduce((min, day) => day.amount < min.amount ? day : min, days[0]);
+    return minDay.date.toLocaleDateString('en-US', { weekday: 'long' });
+  }
+
+  getHighestSpendingDay(): {day: string, amount: number} {
+    const days = this.getDailyExpenses();
+    const maxDay = days.reduce((max, day) => day.amount > max.amount ? day : max, days[0]);
+    return {
+      day: maxDay.date.toLocaleDateString('en-US', { weekday: 'long' }),
+      amount: maxDay.amount
+    };
   }
 
 

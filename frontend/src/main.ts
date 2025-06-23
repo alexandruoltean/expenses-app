@@ -8,6 +8,7 @@ import { inject } from '@angular/core';
 import { AuthService } from './app/services/auth.service';
 import { Router } from '@angular/router';
 import { catchError, throwError } from 'rxjs';
+import { provideNativeDateAdapter } from '@angular/material/core';
 
 const authInterceptor: HttpInterceptorFn = (req, next) => {
   const authService = inject(AuthService);
@@ -43,6 +44,7 @@ bootstrapApplication(AppComponent, {
   providers: [
     provideRouter(routes),
     provideAnimations(),
-    provideHttpClient(withInterceptors([authInterceptor]))
+    provideHttpClient(withInterceptors([authInterceptor])),
+    provideNativeDateAdapter()
   ]
 }).catch(err => console.error(err));

@@ -85,6 +85,93 @@ public class ExpenseContext : DbContext
                 .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Note: Seed data removed temporarily until we implement user authentication
+        // Seed data
+        SeedData(modelBuilder);
+    }
+
+    private void SeedData(ModelBuilder modelBuilder)
+    {
+        var testUserId = Guid.Parse("11111111-1111-1111-1111-111111111111");
+        
+        // Create test user with hashed password "password"
+        var salt = BCrypt.Net.BCrypt.GenerateSalt();
+        var passwordHash = BCrypt.Net.BCrypt.HashPassword("password", salt);
+        
+        modelBuilder.Entity<User>().HasData(new User
+        {
+            Id = testUserId,
+            Email = "test@example.com",
+            Username = "testuser",
+            PasswordHash = passwordHash,
+            Salt = salt,
+            CreatedAt = DateTime.UtcNow,
+            UpdatedAt = DateTime.UtcNow,
+            IsActive = true,
+            LastLoginAt = null
+        });
+
+        // Create sample expenses for the test user
+        modelBuilder.Entity<Expense>().HasData(
+            new Expense
+            {
+                Id = 1,
+                Title = "Grocery Shopping",
+                Amount = 125.50m,
+                Category = "Food & Dining",
+                Description = "Weekly groceries from supermarket",
+                Date = DateTime.Now.AddDays(-2),
+                CreatedAt = DateTime.Now.AddDays(-2),
+                UpdatedAt = DateTime.Now.AddDays(-2),
+                UserId = testUserId
+            },
+            new Expense
+            {
+                Id = 2,
+                Title = "Gas Station",
+                Amount = 45.75m,
+                Category = "Transportation",
+                Description = "Fill up car tank",
+                Date = DateTime.Now.AddDays(-1),
+                CreatedAt = DateTime.Now.AddDays(-1),
+                UpdatedAt = DateTime.Now.AddDays(-1),
+                UserId = testUserId
+            },
+            new Expense
+            {
+                Id = 3,
+                Title = "Coffee Shop",
+                Amount = 8.50m,
+                Category = "Food & Dining",
+                Description = "Morning coffee and pastry",
+                Date = DateTime.Now,
+                CreatedAt = DateTime.Now,
+                UpdatedAt = DateTime.Now,
+                UserId = testUserId
+            },
+            new Expense
+            {
+                Id = 4,
+                Title = "Movie Tickets",
+                Amount = 24.00m,
+                Category = "Entertainment",
+                Description = "Evening movie with friends",
+                Date = DateTime.Now.AddDays(-3),
+                CreatedAt = DateTime.Now.AddDays(-3),
+                UpdatedAt = DateTime.Now.AddDays(-3),
+                UserId = testUserId
+            },
+            new Expense
+            {
+                Id = 5,
+                Title = "Electricity Bill",
+                Amount = 89.25m,
+                Category = "Bills & Utilities",
+                Description = "Monthly electricity payment",
+                Date = DateTime.Now.AddDays(-5),
+                CreatedAt = DateTime.Now.AddDays(-5),
+                UpdatedAt = DateTime.Now.AddDays(-5),
+                UserId = testUserId
+            }
+        );
     }
 }

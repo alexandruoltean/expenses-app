@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
@@ -6,8 +6,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatInputModule } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatNativeDateModule } from '@angular/material/core';
+import { MatDatepicker, MatDatepickerModule } from '@angular/material/datepicker';
+import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../services/expense.service';
@@ -44,6 +44,8 @@ export class AddExpenseDialogComponent implements OnInit {
   expenseForm: FormGroup;
   loading = false;
   
+  @ViewChild('datePicker') datePicker!: MatDatepicker<Date>;
+  
   categories = [
     'Food & Dining',
     'Transportation',
@@ -74,6 +76,12 @@ export class AddExpenseDialogComponent implements OnInit {
   }
 
   ngOnInit() {}
+
+  openDatePicker() {
+    if (this.datePicker) {
+      this.datePicker.open();
+    }
+  }
 
   getCategoryIcon(category: string): string {
     const iconMap: { [key: string]: string } = {

@@ -71,13 +71,19 @@
             Date
           </mat-label>
           <input matInput 
-                 [matDatepicker]="picker" 
+                 [matDatepicker]="datePicker" 
                  formControlName="date"
+                 placeholder="MM/DD/YYYY"
+                 readonly
                  autocomplete="off">
-          <mat-datepicker-toggle matIconSuffix [for]="picker" class="date-toggle">
-            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
-          </mat-datepicker-toggle>
-          <mat-datepicker #picker class="futuristic-datepicker"></mat-datepicker>
+          <button matSuffix 
+                  mat-icon-button 
+                  type="button"
+                  (click)="openDatePicker()"
+                  class="calendar-button">
+            <mat-icon>calendar_today</mat-icon>
+          </button>
+          <mat-datepicker #datePicker></mat-datepicker>
           <mat-error *ngIf="expenseForm.get('date')?.hasError('required')">
             <mat-icon>error_outline</mat-icon> Date is required
           </mat-error>

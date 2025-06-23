@@ -25,6 +25,8 @@
   
   --accent-primary: #667eea;
   --accent-secondary: #764ba2;
+  --accent-primary-rgb: 102, 126, 234;
+  --accent-secondary-rgb: 118, 75, 162;
 }
 
 // Dark theme colors
@@ -51,6 +53,8 @@
   
   --accent-primary: #bb86fc;
   --accent-secondary: #9c64f0;
+  --accent-primary-rgb: 187, 134, 252;
+  --accent-secondary-rgb: 156, 100, 240;
 }
 
 // Global styles with smooth transitions
@@ -355,4 +359,27 @@ body {
 .expense-form .mat-mdc-form-field {
   width: 100%;
   margin-bottom: 16px;
+}
+
+// Custom Snackbar Styles
+.success-snackbar {
+  .mat-mdc-snack-bar-surface {
+    background: linear-gradient(135deg, #4caf50 0%, #45a049 100%) !important;
+    color: #ffffff !important;
+  }
+  
+  .mat-mdc-button {
+    color: #ffffff !important;
+  }
+}
+
+.error-snackbar {
+  .mat-mdc-snack-bar-surface {
+    background: linear-gradient(135deg, #f44336 0%, #e53935 100%) !important;
+    color: #ffffff !important;
+  }
+  
+  .mat-mdc-button {
+    color: #ffffff !important;
+  }
 }

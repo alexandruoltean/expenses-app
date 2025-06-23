@@ -11,6 +11,7 @@ import { MatNativeDateModule } from '@angular/material/core';
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../services/expense.service';
+import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
   selector: 'app-add-expense-dialog',
@@ -29,7 +30,15 @@ import { ExpenseService } from '../../services/expense.service';
     MatSnackBarModule
   ],
   templateUrl: './add-expense-dialog.component.html',
-  styleUrls: ['./add-expense-dialog.component.css']
+  styleUrls: ['./add-expense-dialog.component.css'],
+  animations: [
+    trigger('rotateIcon', [
+      state('loading', style({ transform: 'rotate(360deg)' })),
+      state('default', style({ transform: 'rotate(0deg)' })),
+      transition('default => loading', animate('1s linear')),
+      transition('loading => default', animate('0.3s ease-out'))
+    ])
+  ]
 })
 export class AddExpenseDialogComponent implements OnInit {
   expenseForm: FormGroup;
@@ -66,6 +75,23 @@ export class AddExpenseDialogComponent implements OnInit {
 
   ngOnInit() {}
 
+  getCategoryIcon(category: string): string {
+    const iconMap: { [key: string]: string } = {
+      'Food & Dining': 'restaurant',
+      'Transportation': 'directions_car',
+      'Shopping': 'shopping_cart',
+      'Entertainment': 'movie',
+      'Bills & Utilities': 'receipt',
+      'Healthcare': 'medical_services',
+      'Travel': 'flight',
+      'Education': 'school',
+      'Personal Care': 'spa',
+      'Home & Garden': 'home',
+      'Other': 'category'
+    };
+    return iconMap[category] || 'category';
+  }
+
   onSubmit() {
     if (this.expenseForm.invalid) return;
     
@@ -74,11 +100,17 @@ export class AddExpenseDialogComponent implements OnInit {
     
     this.expenseService.createExpense(formValue).subscribe({
       next: () => {
-        this.snackBar.open('Expense added successfully!', 'Close', { duration: 3000 });
+        this.snackBar.open('Expense added successfully!', 'Close', { 
+          duration: 3000,
+          panelClass: ['success-snackbar']
+        });
         this.dialogRef.close(true);
       },
       error: (error) => {
-        this.snackBar.open('Error adding expense. Please try again.', 'Close', { duration: 3000 });
+        this.snackBar.open('Error adding expense. Please try again.', 'Close', { 
+          duration: 3000,
+          panelClass: ['error-snackbar']
+        });
         this.loading = false;
       }
     });

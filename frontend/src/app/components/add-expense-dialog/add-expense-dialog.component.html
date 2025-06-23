@@ -1,89 +1,145 @@
-<div class="dialog-container">
-  <h2 mat-dialog-title>Add New Expense</h2>
+<div class="futuristic-dialog-container">
+  <div class="dialog-header">
+    <div class="header-content">
+      <mat-icon class="header-icon">account_balance_wallet</mat-icon>
+      <h2 mat-dialog-title class="dialog-title">Add New Expense</h2>
+    </div>
+    <div class="header-accent"></div>
+  </div>
   
-  <div mat-dialog-content>
+  <div mat-dialog-content class="dialog-content">
     <form [formGroup]="expenseForm" (ngSubmit)="onSubmit()" class="expense-form">
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Title</mat-label>
-        <input matInput 
-               formControlName="title" 
-               placeholder="Enter expense title">
-        <mat-error *ngIf="expenseForm.get('title')?.hasError('required')">
-          Title is required
-        </mat-error>
-        <mat-error *ngIf="expenseForm.get('title')?.hasError('maxlength')">
-          Title cannot exceed 100 characters
-        </mat-error>
-      </mat-form-field>
+      <div class="form-section">
+        <mat-form-field appearance="outline" class="full-width futuristic-field">
+          <mat-label>
+            <mat-icon class="field-icon">title</mat-icon>
+            Title
+          </mat-label>
+          <input matInput 
+                 formControlName="title" 
+                 placeholder="Enter expense title"
+                 autocomplete="off">
+          <mat-error *ngIf="expenseForm.get('title')?.hasError('required')">
+            <mat-icon>error_outline</mat-icon> Title is required
+          </mat-error>
+          <mat-error *ngIf="expenseForm.get('title')?.hasError('maxlength')">
+            <mat-icon>error_outline</mat-icon> Title cannot exceed 100 characters
+          </mat-error>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Amount</mat-label>
-        <input matInput 
-               type="number" 
-               formControlName="amount" 
-               placeholder="0.00" 
-               step="0.01" 
-               min="0">
-        <span matPrefix>$&nbsp;</span>
-        <mat-error *ngIf="expenseForm.get('amount')?.hasError('required')">
-          Amount is required
-        </mat-error>
-        <mat-error *ngIf="expenseForm.get('amount')?.hasError('min')">
-          Amount must be greater than 0
-        </mat-error>
-      </mat-form-field>
+        <div class="amount-category-row">
+          <mat-form-field appearance="outline" class="amount-field futuristic-field">
+            <mat-label>
+              <mat-icon class="field-icon">payments</mat-icon>
+              Amount
+            </mat-label>
+            <input matInput 
+                   type="number" 
+                   formControlName="amount" 
+                   placeholder="0.00" 
+                   step="0.01" 
+                   min="0"
+                   autocomplete="off">
+            <mat-error *ngIf="expenseForm.get('amount')?.hasError('required')">
+              <mat-icon>error_outline</mat-icon> Required
+            </mat-error>
+            <mat-error *ngIf="expenseForm.get('amount')?.hasError('min')">
+              <mat-icon>error_outline</mat-icon> Must be > 0
+            </mat-error>
+          </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Category</mat-label>
-        <mat-select formControlName="category">
-          <mat-option *ngFor="let category of categories" [value]="category">
-            {{category}}
-          </mat-option>
-        </mat-select>
-        <mat-error *ngIf="expenseForm.get('category')?.hasError('required')">
-          Category is required
-        </mat-error>
-      </mat-form-field>
+          <mat-form-field appearance="outline" class="category-field futuristic-field">
+            <mat-label>
+              <mat-icon class="field-icon">category</mat-icon>
+              Category
+            </mat-label>
+            <mat-select formControlName="category">
+              <mat-option *ngFor="let category of categories" [value]="category" class="futuristic-option">
+                <span class="option-content">
+                  <mat-icon class="category-icon">{{getCategoryIcon(category)}}</mat-icon>
+                  {{category}}
+                </span>
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="expenseForm.get('category')?.hasError('required')">
+              <mat-icon>error_outline</mat-icon> Required
+            </mat-error>
+          </mat-form-field>
+        </div>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Date</mat-label>
-        <input matInput 
-               [matDatepicker]="picker" 
-               formControlName="date">
-        <mat-datepicker-toggle matSuffix [for]="picker"></mat-datepicker-toggle>
-        <mat-datepicker #picker></mat-datepicker>
-        <mat-error *ngIf="expenseForm.get('date')?.hasError('required')">
-          Date is required
-        </mat-error>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width futuristic-field">
+          <mat-label>
+            <mat-icon class="field-icon">event</mat-icon>
+            Date
+          </mat-label>
+          <input matInput 
+                 [matDatepicker]="picker" 
+                 formControlName="date"
+                 autocomplete="off">
+          <mat-datepicker-toggle matIconSuffix [for]="picker" class="date-toggle">
+            <mat-icon matDatepickerToggleIcon>calendar_today</mat-icon>
+          </mat-datepicker-toggle>
+          <mat-datepicker #picker class="futuristic-datepicker"></mat-datepicker>
+          <mat-error *ngIf="expenseForm.get('date')?.hasError('required')">
+            <mat-icon>error_outline</mat-icon> Date is required
+          </mat-error>
+        </mat-form-field>
 
-      <mat-form-field appearance="outline" class="full-width">
-        <mat-label>Description (Optional)</mat-label>
-        <textarea matInput 
-                  formControlName="description" 
-                  placeholder="Enter expense description"
-                  rows="3"></textarea>
-        <mat-error *ngIf="expenseForm.get('description')?.hasError('maxlength')">
-          Description cannot exceed 500 characters
-        </mat-error>
-      </mat-form-field>
+        <mat-form-field appearance="outline" class="full-width futuristic-field description-field">
+          <mat-label>
+            <mat-icon class="field-icon">description</mat-icon>
+            Description (Optional)
+          </mat-label>
+          <textarea matInput 
+                    formControlName="description" 
+                    placeholder="Enter expense description"
+                    rows="3"
+                    autocomplete="off"></textarea>
+          <mat-hint align="end">{{expenseForm.get('description')?.value?.length || 0}}/500</mat-hint>
+          <mat-error *ngIf="expenseForm.get('description')?.hasError('maxlength')">
+            <mat-icon>error_outline</mat-icon> Description cannot exceed 500 characters
+          </mat-error>
+        </mat-form-field>
+      </div>
+
+      <div class="form-preview" *ngIf="expenseForm.valid">
+        <div class="preview-header">
+          <mat-icon>preview</mat-icon>
+          <span>Preview</span>
+        </div>
+        <div class="preview-content">
+          <div class="preview-item">
+            <span class="preview-label">Total:</span>
+            <span class="preview-value">${{expenseForm.get('amount')?.value | number:'1.2-2'}}</span>
+          </div>
+          <div class="preview-item">
+            <span class="preview-label">Category:</span>
+            <span class="preview-value">{{expenseForm.get('category')?.value}}</span>
+          </div>
+        </div>
+      </div>
     </form>
   </div>
 
-  <div mat-dialog-actions align="end">
+  <div mat-dialog-actions class="dialog-actions">
+    <div class="action-backdrop"></div>
     <button mat-button 
             type="button" 
+            class="cancel-button"
             [mat-dialog-close]="false">
+      <mat-icon>close</mat-icon>
       Cancel
     </button>
     <button mat-raised-button 
             color="primary" 
             type="submit" 
+            class="submit-button"
             [disabled]="expenseForm.invalid || loading"
             (click)="onSubmit()">
-      <mat-icon *ngIf="loading">hourglass_empty</mat-icon>
-      <mat-icon *ngIf="!loading">add</mat-icon>
-      {{loading ? 'Adding...' : 'Add Expense'}}
+      <span class="button-content">
+        <span class="button-text">{{loading ? 'Adding...' : 'Add Expense'}}</span>
+      </span>
+      <span class="button-glow"></span>
     </button>
   </div>
 </div>

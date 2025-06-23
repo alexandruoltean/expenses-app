@@ -1,4 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Authorization;
+using System.Security.Claims;
 using ExpenseTracker.Api.DTOs;
 using ExpenseTracker.Api.Services;
 
@@ -6,6 +8,7 @@ namespace ExpenseTracker.Api.Controllers;
 
 [ApiController]
 [Route("api/[controller]")]
+[Authorize]
 public class ExpensesController : ControllerBase
 {
     private readonly IExpenseService _expenseService;
@@ -17,13 +20,24 @@ public class ExpensesController : ControllerBase
         _logger = logger;
     }
 
+    private Guid GetCurrentUserId()
+    {
+        var userIdClaim = User.FindFirst(ClaimTypes.NameIdentifier);
+        if (userIdClaim == null || !Guid.TryParse(userIdClaim.Value, out var userId))
+        {
+            throw new UnauthorizedAccessException("Invalid user ID in token");
+        }
+        return userId;
+    }
+
     /// <summary>
     /// Get all expenses
     /// </summary>
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpenses()
     {
-        var expenses = await _expenseService.GetAllExpensesAsync();
+        var userId = GetCurrentUserId();
+        var expenses = await _expenseService.GetAllExpensesAsync(userId);
         return Ok(expenses);
     }
 
@@ -35,7 +49,8 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var expense = await _expenseService.GetExpenseByIdAsync(id);
+            var userId = GetCurrentUserId();
+            var expense = await _expenseService.GetExpenseByIdAsync(id, userId);
             if (expense == null)
                 return NotFound($"Expense with ID {id} not found");
 
@@ -59,7 +74,8 @@ public class ExpensesController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var expense = await _expenseService.CreateExpenseAsync(createExpenseDto);
+            var userId = GetCurrentUserId();
+            var expense = await _expenseService.CreateExpenseAsync(createExpenseDto, userId);
             return CreatedAtAction(nameof(GetExpense), new { id = expense.Id }, expense);
         }
         catch (Exception ex)
@@ -80,7 +96,8 @@ public class ExpensesController : ControllerBase
             if (!ModelState.IsValid)
                 return BadRequest(ModelState);
 
-            var expense = await _expenseService.UpdateExpenseAsync(id, updateExpenseDto);
+            var userId = GetCurrentUserId();
+            var expense = await _expenseService.UpdateExpenseAsync(id, updateExpenseDto, userId);
             if (expense == null)
                 return NotFound($"Expense with ID {id} not found");
 
@@ -101,7 +118,8 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var result = await _expenseService.DeleteExpenseAsync(id);
+            var userId = GetCurrentUserId();
+            var result = await _expenseService.DeleteExpenseAsync(id, userId);
             if (!result)
                 return NotFound($"Expense with ID {id} not found");
 
@@ -125,7 +143,8 @@ public class ExpensesController : ControllerBase
             if (month < 1 || month > 12)
                 return BadRequest("Month must be between 1 and 12");
 
-            var expenses = await _expenseService.GetExpensesByMonthAsync(year, month);
+            var userId = GetCurrentUserId();
+            var expenses = await _expenseService.GetExpensesByMonthAsync(year, month, userId);
             return Ok(expenses);
         }
         catch (Exception ex)
@@ -143,7 +162,8 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var categoryTotals = await _expenseService.GetExpensesTotalByCategoryAsync();
+            var userId = GetCurrentUserId();
+            var categoryTotals = await _expenseService.GetExpensesTotalByCategoryAsync(userId);
             return Ok(categoryTotals);
         }
         catch (Exception ex)
@@ -161,7 +181,8 @@ public class ExpensesController : ControllerBase
     {
         try
         {
-            var total = await _expenseService.GetTotalExpensesAsync();
+            var userId = GetCurrentUserId();
+            var total = await _expenseService.GetTotalExpensesAsync(userId);
             return Ok(total);
         }
         catch (Exception ex)

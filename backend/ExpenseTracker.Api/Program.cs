@@ -1,4 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 using ExpenseTracker.Api.Data;
 using ExpenseTracker.Api.Data.Repositories;
 using ExpenseTracker.Api.Data.UnitOfWork;
@@ -24,6 +27,31 @@ builder.Services.AddDbContext<ExpenseContext>(options =>
 builder.Services.AddScoped<IExpenseRepository, ExpenseRepository>();
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IExpenseService, ExpenseService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
+
+// Configure JWT Authentication
+var jwtKey = builder.Configuration["Jwt:Key"]!;
+var jwtIssuer = builder.Configuration["Jwt:Issuer"]!;
+var jwtAudience = builder.Configuration["Jwt:Audience"]!;
+
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidateAudience = true,
+        ValidateLifetime = true,
+        ValidateIssuerSigningKey = true,
+        ValidIssuer = jwtIssuer,
+        ValidAudience = jwtAudience,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey))
+    };
+});
 
 // Add CORS
 builder.Services.AddCors(options =>
@@ -48,6 +76,7 @@ if (app.Environment.IsDevelopment())
 
 app.UseCors("AllowAngularApp");
 // app.UseHttpsRedirection(); // Temporarily disabled for debugging
+app.UseAuthentication(); // Add this before UseAuthorization
 app.UseAuthorization();
 app.MapControllers();
 

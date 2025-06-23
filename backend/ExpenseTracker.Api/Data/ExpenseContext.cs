@@ -10,11 +10,44 @@ public class ExpenseContext : DbContext
     }
 
     public DbSet<Expense> Expenses { get; set; } = null!;
+    public DbSet<User> Users { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);
 
+        // Configure User entity
+        modelBuilder.Entity<User>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+                
+            entity.HasIndex(e => e.Email)
+                .IsUnique();
+                
+            entity.Property(e => e.Username)
+                .IsRequired()
+                .HasMaxLength(100);
+                
+            entity.Property(e => e.PasswordHash)
+                .IsRequired();
+                
+            entity.Property(e => e.Salt)
+                .IsRequired();
+                
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()");
+                
+            entity.Property(e => e.UpdatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()");
+        });
+
+        // Configure Expense entity
         modelBuilder.Entity<Expense>(entity =>
         {
             entity.HasKey(e => e.Id);
@@ -44,43 +77,14 @@ public class ExpenseContext : DbContext
             entity.Property(e => e.UpdatedAt)
                 .IsRequired()
                 .HasDefaultValueSql("GETDATE()");
+                
+            // Configure relationship
+            entity.HasOne(e => e.User)
+                .WithMany(u => u.Expenses)
+                .HasForeignKey(e => e.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
 
-        // Seed data
-        modelBuilder.Entity<Expense>().HasData(
-            new Expense
-            {
-                Id = 1,
-                Title = "Grocery Shopping",
-                Amount = 125.50m,
-                Category = "Food & Dining",
-                Description = "Weekly grocery shopping at supermarket",
-                Date = DateTime.UtcNow.AddDays(-3),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new Expense
-            {
-                Id = 2,
-                Title = "Gas Station",
-                Amount = 45.00m,
-                Category = "Transportation",
-                Description = "Fuel for car",
-                Date = DateTime.UtcNow.AddDays(-1),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            },
-            new Expense
-            {
-                Id = 3,
-                Title = "Electric Bill",
-                Amount = 89.23m,
-                Category = "Bills & Utilities",
-                Description = "Monthly electricity bill",
-                Date = DateTime.UtcNow.AddDays(-5),
-                CreatedAt = DateTime.UtcNow,
-                UpdatedAt = DateTime.UtcNow
-            }
-        );
+        // Note: Seed data removed temporarily until we implement user authentication
     }
 }

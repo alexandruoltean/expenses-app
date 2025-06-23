@@ -13,12 +13,13 @@ public class ExpenseService : IExpenseService
         _unitOfWork = unitOfWork;
     }
 
-    public async Task<IEnumerable<ExpenseDto>> GetAllExpensesAsync()
+    public async Task<IEnumerable<ExpenseDto>> GetAllExpensesAsync(Guid userId)
     {
         try
         {
             var expenses = await _unitOfWork.Expenses.GetAllAsync();
-            return expenses.Select(MapToDto);
+            var userExpenses = expenses.Where(e => e.UserId == userId);
+            return userExpenses.Select(MapToDto);
         }
         catch (Exception ex)
         {
@@ -27,13 +28,15 @@ public class ExpenseService : IExpenseService
         }
     }
 
-    public async Task<ExpenseDto?> GetExpenseByIdAsync(int id)
+    public async Task<ExpenseDto?> GetExpenseByIdAsync(int id, Guid userId)
     {
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        return expense != null ? MapToDto(expense) : null;
+        if (expense == null || expense.UserId != userId)
+            return null;
+        return MapToDto(expense);
     }
 
-    public async Task<ExpenseDto> CreateExpenseAsync(CreateExpenseDto createExpenseDto)
+    public async Task<ExpenseDto> CreateExpenseAsync(CreateExpenseDto createExpenseDto, Guid userId)
     {
         var expense = new Expense
         {
@@ -43,7 +46,8 @@ public class ExpenseService : IExpenseService
             Description = createExpenseDto.Description,
             Date = createExpenseDto.Date,
             CreatedAt = DateTime.UtcNow,
-            UpdatedAt = DateTime.UtcNow
+            UpdatedAt = DateTime.UtcNow,
+            UserId = userId
         };
 
         await _unitOfWork.Expenses.AddAsync(expense);
@@ -52,10 +56,10 @@ public class ExpenseService : IExpenseService
         return MapToDto(expense);
     }
 
-    public async Task<ExpenseDto?> UpdateExpenseAsync(int id, UpdateExpenseDto updateExpenseDto)
+    public async Task<ExpenseDto?> UpdateExpenseAsync(int id, UpdateExpenseDto updateExpenseDto, Guid userId)
     {
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (expense == null)
+        if (expense == null || expense.UserId != userId)
             return null;
 
         if (!string.IsNullOrWhiteSpace(updateExpenseDto.Title))
@@ -81,25 +85,31 @@ public class ExpenseService : IExpenseService
         return MapToDto(expense);
     }
 
-    public async Task<bool> DeleteExpenseAsync(int id)
+    public async Task<bool> DeleteExpenseAsync(int id, Guid userId)
     {
         var expense = await _unitOfWork.Expenses.GetByIdAsync(id);
-        if (expense == null)
+        if (expense == null || expense.UserId != userId)
             return false;
 
         _unitOfWork.Expenses.Remove(expense);
         return await _unitOfWork.SaveChangesReturnBoolAsync();
     }
 
-    public async Task<IEnumerable<ExpenseDto>> GetExpensesByMonthAsync(int year, int month)
+    public async Task<IEnumerable<ExpenseDto>> GetExpensesByMonthAsync(int year, int month, Guid userId)
     {
         var expenses = await _unitOfWork.Expenses.GetExpensesByMonthAsync(year, month);
-        return expenses.Select(MapToDto);
+        var userExpenses = expenses.Where(e => e.UserId == userId);
+        return userExpenses.Select(MapToDto);
     }
 
-    public async Task<IEnumerable<ExpenseCategoryTotalDto>> GetExpensesTotalByCategoryAsync()
+    public async Task<IEnumerable<ExpenseCategoryTotalDto>> GetExpensesTotalByCategoryAsync(Guid userId)
     {
-        var categoryTotals = await _unitOfWork.Expenses.GetExpensesTotalByCategoryAsync();
+        var allExpenses = await _unitOfWork.Expenses.GetAllAsync();
+        var userExpenses = allExpenses.Where(e => e.UserId == userId);
+        var categoryTotals = userExpenses
+            .GroupBy(e => e.Category)
+            .ToDictionary(g => g.Key, g => g.Sum(e => e.Amount));
+        
         return categoryTotals.Select(ct => new ExpenseCategoryTotalDto
         {
             Category = ct.Key,
@@ -107,9 +117,11 @@ public class ExpenseService : IExpenseService
         });
     }
 
-    public async Task<decimal> GetTotalExpensesAsync()
+    public async Task<decimal> GetTotalExpensesAsync(Guid userId)
     {
-        return await _unitOfWork.Expenses.GetTotalExpensesAsync();
+        var allExpenses = await _unitOfWork.Expenses.GetAllAsync();
+        var userExpenses = allExpenses.Where(e => e.UserId == userId);
+        return userExpenses.Sum(e => e.Amount);
     }
 
     private static ExpenseDto MapToDto(Expense expense)

@@ -137,11 +137,26 @@
   align-items: center;
   gap: 12px;
   padding: 4px 0;
+  width: 100%;
 }
 
 .category-icon {
   font-size: 20px;
+  width: 20px;
+  height: 20px;
   color: var(--accent-primary);
+  flex-shrink: 0;
+}
+
+.category-text {
+  flex: 1;
+  font-size: 14px;
+}
+
+/* Global styles for dropdown option icons */
+::ng-deep .mat-mdc-option mat-icon {
+  color: #667eea !important;
+  margin-right: 8px;
 }
 
 /* Description Field */

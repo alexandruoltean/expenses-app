@@ -175,10 +175,25 @@ export class ExpenseListComponent implements OnInit {
   ngOnInit() {
     this.loadExpenses();
     this.setupFilters();
+    this.subscribeToExpenses();
   }
 
   private setupFilters() {
     // Filter setup can be implemented here if needed
+  }
+
+  private subscribeToExpenses() {
+    this.expenseService.expenses$.subscribe({
+      next: (expenses) => {
+        this.expenses = expenses;
+        this.filteredExpenses = expenses;
+        this.categories = [...new Set(expenses.map(e => e.category))];
+        this.updateChartData();
+      },
+      error: (error) => {
+        console.error('Error receiving expenses:', error);
+      }
+    });
   }
 
   private loadExpenses() {
@@ -236,7 +251,6 @@ export class ExpenseListComponent implements OnInit {
       this.expenseService.deleteExpense(id).subscribe({
         next: () => {
           this.snackBar.open('Expense deleted successfully', 'Close', { duration: 3000 });
-          this.loadExpenses();
         },
         error: (error) => {
           this.snackBar.open('Error deleting expense', 'Close', { duration: 3000 });
@@ -457,7 +471,7 @@ export class ExpenseListComponent implements OnInit {
 
     dialogRef.afterClosed().subscribe(result => {
       if (result) {
-        this.loadExpenses(); // Refresh the list
+        // List will be automatically updated via reactive service
       }
     });
   }

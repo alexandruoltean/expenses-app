@@ -27,4 +27,11 @@ public class Expense
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
+    
+    // Foreign key for User
+    [Required]
+    public Guid UserId { get; set; }
+    
+    // Navigation property
+    public virtual User? User { get; set; }
 }

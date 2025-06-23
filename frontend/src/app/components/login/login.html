@@ -1,0 +1,77 @@
+<div class="auth-container">
+  <div class="auth-card">
+    <div class="auth-header">
+      <mat-icon class="auth-icon">account_circle</mat-icon>
+      <h1>Welcome Back</h1>
+      <p>Sign in to your account</p>
+    </div>
+
+    <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="auth-form">
+      <mat-form-field appearance="outline" class="full-width futuristic-field">
+        <mat-label>
+          <mat-icon class="field-icon">email</mat-icon>
+          Email
+        </mat-label>
+        <input matInput 
+               type="email" 
+               formControlName="email" 
+               placeholder="Enter your email"
+               autocomplete="email">
+        <mat-error *ngIf="loginForm.get('email')?.hasError('required')">
+          <mat-icon>error_outline</mat-icon> Email is required
+        </mat-error>
+        <mat-error *ngIf="loginForm.get('email')?.hasError('email')">
+          <mat-icon>error_outline</mat-icon> Please enter a valid email
+        </mat-error>
+      </mat-form-field>
+
+      <mat-form-field appearance="outline" class="full-width futuristic-field">
+        <mat-label>
+          <mat-icon class="field-icon">lock</mat-icon>
+          Password
+        </mat-label>
+        <input matInput 
+               [type]="hidePassword ? 'password' : 'text'" 
+               formControlName="password" 
+               placeholder="Enter your password"
+               autocomplete="current-password">
+        <button mat-icon-button 
+                matSuffix 
+                type="button"
+                (click)="hidePassword = !hidePassword"
+                [attr.aria-label]="'Hide password'"
+                [attr.aria-pressed]="hidePassword">
+          <mat-icon>{{hidePassword ? 'visibility_off' : 'visibility'}}</mat-icon>
+        </button>
+        <mat-error *ngIf="loginForm.get('password')?.hasError('required')">
+          <mat-icon>error_outline</mat-icon> Password is required
+        </mat-error>
+      </mat-form-field>
+
+      <div class="auth-actions">
+        <button mat-raised-button 
+                color="primary" 
+                type="submit" 
+                class="auth-button"
+                [disabled]="loginForm.invalid || loading">
+          <span class="button-content">
+            <mat-icon *ngIf="loading" class="spinning">sync</mat-icon>
+            <mat-icon *ngIf="!loading">login</mat-icon>
+            <span>{{loading ? 'Signing in...' : 'Sign In'}}</span>
+          </span>
+        </button>
+      </div>
+
+      <div class="auth-footer">
+        <p>Don't have an account? 
+          <a mat-button color="primary" routerLink="/register">Sign up</a>
+        </p>
+      </div>
+
+      <div *ngIf="errorMessage" class="error-message">
+        <mat-icon>error</mat-icon>
+        <span>{{errorMessage}}</span>
+      </div>
+    </form>
+  </div>
+</div>

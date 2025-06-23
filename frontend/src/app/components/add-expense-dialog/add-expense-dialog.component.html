@@ -54,11 +54,9 @@
               Category
             </mat-label>
             <mat-select formControlName="category">
-              <mat-option *ngFor="let category of categories" [value]="category" class="futuristic-option">
-                <span class="option-content">
-                  <mat-icon class="category-icon">{{getCategoryIcon(category)}}</mat-icon>
-                  {{category}}
-                </span>
+              <mat-option *ngFor="let category of categories" [value]="category">
+                <mat-icon>{{getCategoryIcon(category)}}</mat-icon>
+                {{category}}
               </mat-option>
             </mat-select>
             <mat-error *ngIf="expenseForm.get('category')?.hasError('required')">

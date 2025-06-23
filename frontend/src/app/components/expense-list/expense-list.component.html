@@ -72,6 +72,51 @@
         </mat-card-content>
       </mat-card>
 
+      <mat-card class="stat-card insight-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon good">
+              <mat-icon>thumb_up</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Most Efficient Day</h3>
+              <p class="stat-value">{{getMostEfficientDay()}}</p>
+              <span class="stat-period">Lowest spending day this week</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card insight-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon neutral">
+              <mat-icon>analytics</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Average Transaction</h3>
+              <p class="stat-value">${{getAverageAmount() | number:'1.2-2'}}</p>
+              <span class="stat-period">per expense</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="stat-card insight-card">
+        <mat-card-content>
+          <div class="stat-content">
+            <div class="stat-icon" [class.warning]="getHighestSpendingDay().amount > getWeekTotal() * 0.4" [class.good]="getHighestSpendingDay().amount <= getWeekTotal() * 0.4">
+              <mat-icon>{{getHighestSpendingDay().amount > getWeekTotal() * 0.4 ? 'warning' : 'check_circle'}}</mat-icon>
+            </div>
+            <div class="stat-details">
+              <h3>Peak Spending</h3>
+              <p class="stat-value">{{getHighestSpendingDay().day}}</p>
+              <span class="stat-period">${{getHighestSpendingDay().amount | number:'1.0-0'}}</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
     </div>
 
     <!-- Main Charts Row -->
@@ -88,7 +133,7 @@
           </div>
         </mat-card-header>
         <mat-card-content>
-          <div class="chart-summary">
+          <div class="stats-section">
             <div class="summary-item">
               <span class="summary-label">This Week</span>
               <span class="summary-value">${{getWeekTotal() | number:'1.0-0'}}</span>
@@ -120,7 +165,7 @@
           <mat-card-title><mat-icon>bar_chart</mat-icon> Monthly Overview</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="monthly-stats">
+          <div class="stats-section">
             <div class="month-stat">
               <span class="month-label">This Month</span>
               <span class="month-value current">${{getCurrentMonthTotal() | number:'1.0-0'}}</span>
@@ -162,12 +207,12 @@
           <mat-card-title><mat-icon>pie_chart</mat-icon> Spending by Category</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="category-chart">
-            <div *ngFor="let category of getCategoryBreakdown()" class="category-item">
-              <div class="category-icon">
+          <div class="list-container">
+            <div *ngFor="let category of getCategoryBreakdown()" class="list-item">
+              <div class="list-icon">
                 <mat-icon>{{getCategoryIcon(category.name)}}</mat-icon>
               </div>
-              <div class="category-details">
+              <div class="list-details">
                 <h4>{{category.name}}</h4>
                 <p>${{category.amount | number:'1.2-2'}} • {{category.percentage | number:'1.1-1'}}%</p>
               </div>
@@ -179,85 +224,46 @@
         </mat-card-content>
       </mat-card>
 
-      <mat-card class="chart-card spending-insights">
-        <mat-card-header>
-          <mat-card-title><mat-icon>insights</mat-icon> Spending Insights</mat-card-title>
-        </mat-card-header>
-        <mat-card-content>
-          <div class="insights-list">
-            <div class="insight-item">
-              <div class="insight-icon good">
-                <mat-icon>thumb_up</mat-icon>
-              </div>
-              <div class="insight-content">
-                <h4>Most Efficient Day</h4>
-                <p>{{getMostEfficientDay()}} - Lowest spending day this week</p>
-              </div>
-            </div>
-            
-            <div class="insight-item">
-              <div class="insight-icon neutral">
-                <mat-icon>analytics</mat-icon>
-              </div>
-              <div class="insight-content">
-                <h4>Average Transaction</h4>
-                <p>${{getAverageAmount() | number:'1.2-2'}} per expense</p>
-              </div>
-            </div>
-            
-            <div class="insight-item">
-              <div class="insight-icon warning" *ngIf="getHighestSpendingDay().amount > getWeekTotal() * 0.4">
-                <mat-icon>warning</mat-icon>
-              </div>
-              <div class="insight-icon good" *ngIf="getHighestSpendingDay().amount <= getWeekTotal() * 0.4">
-                <mat-icon>check_circle</mat-icon>
-              </div>
-              <div class="insight-content">
-                <h4>Peak Spending</h4>
-                <p>{{getHighestSpendingDay().day}} - ${{getHighestSpendingDay().amount | number:'1.0-0'}}</p>
-              </div>
-            </div>
-          </div>
-        </mat-card-content>
-      </mat-card>
-
       <mat-card class="chart-card recent-activity">
         <mat-card-header>
           <mat-card-title><mat-icon>history</mat-icon> Recent Activity</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="activity-list">
-            <div *ngFor="let expense of getRecentExpenses()" class="activity-item">
-              <div class="activity-icon">
+          <div class="list-container">
+            <div *ngFor="let expense of getRecentExpenses()" class="list-item">
+              <div class="list-icon">
                 <mat-icon>{{getCategoryIcon(expense.category)}}</mat-icon>
               </div>
-              <div class="activity-details">
+              <div class="list-details">
                 <h4>{{expense.title}}</h4>
                 <p>{{expense.category}} • {{expense.date | date:'MMM d'}}</p>
               </div>
-              <div class="activity-amount">
+              <div class="list-amount">
                 ${{expense.amount | number:'1.2-2'}}
               </div>
             </div>
           </div>
         </mat-card-content>
       </mat-card>
+    </div>
 
+    <!-- All Expenses Row -->
+    <div class="expense-list-section">
       <mat-card class="chart-card">
         <mat-card-header>
           <mat-card-title><mat-icon>receipt_long</mat-icon> All Expenses</mat-card-title>
         </mat-card-header>
         <mat-card-content>
-          <div class="activity-list">
-            <div *ngFor="let expense of filteredExpenses" class="activity-item">
-              <div class="activity-icon">
+          <div class="list-container">
+            <div *ngFor="let expense of filteredExpenses" class="list-item">
+              <div class="list-icon">
                 <mat-icon>{{getCategoryIcon(expense.category)}}</mat-icon>
               </div>
-              <div class="activity-details">
+              <div class="list-details">
                 <h4>{{expense.title}}</h4>
                 <p>{{expense.category}} • {{expense.date | date:'MMM d'}}<span *ngIf="expense.description"> • {{expense.description}}</span></p>
               </div>
-              <div class="activity-amount">
+              <div class="list-amount">
                 ${{expense.amount | number:'1.2-2'}}
               </div>
               <div class="expense-actions">

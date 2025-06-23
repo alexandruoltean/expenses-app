@@ -4,7 +4,6 @@ import { RouterOutlet, RouterModule, Router } from '@angular/router';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIconModule } from '@angular/material/icon';
-import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { MatDialog, MatDialogModule } from '@angular/material/dialog';
 import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
@@ -23,29 +22,23 @@ import { Observable } from 'rxjs';
     MatToolbarModule,
     MatButtonModule,
     MatIconModule,
-    MatSlideToggleModule,
     MatDialogModule,
     MatMenuModule
   ],
   template: `
     <mat-toolbar color="primary" class="sticky-toolbar" *ngIf="isAuthenticated$ | async">
       <span>Expense Tracker</span>
-      <span class="spacer"></span>
-      <span class="user-info" *ngIf="currentUser$ | async as user">
-        Welcome, {{user.username}}
-      </span>
       <button mat-raised-button color="accent" (click)="openAddExpenseDialog()" class="add-expense-btn">
         <mat-icon>add</mat-icon>
         Add Expense
       </button>
-      <div class="theme-toggle">
-        <mat-slide-toggle 
-          [checked]="isDarkTheme" 
-          (change)="toggleTheme()"
-          aria-label="Toggle dark theme">
-          Dark Mode
-        </mat-slide-toggle>
-      </div>
+      <span class="spacer"></span>
+      <button mat-icon-button (click)="toggleTheme()" class="theme-toggle" [attr.aria-label]="isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'">
+        <mat-icon>{{isDarkTheme ? 'light_mode' : 'dark_mode'}}</mat-icon>
+      </button>
+      <span class="user-info" *ngIf="currentUser$ | async as user">
+        {{user.username}}
+      </span>
       <button mat-icon-button [matMenuTriggerFor]="userMenu">
         <mat-icon>account_circle</mat-icon>
       </button>
@@ -76,17 +69,17 @@ import { Observable } from 'rxjs';
     }
     
     .user-info {
-      margin-right: 16px;
+      margin-right: 8px;
       font-size: 0.875rem;
       color: rgba(255, 255, 255, 0.8);
     }
     
     .add-expense-btn {
-      margin-right: 16px;
+      margin-left: 16px;
     }
     
     .theme-toggle {
-      margin-right: 16px;
+      margin-right: 8px;
     }
     
     .content-container {

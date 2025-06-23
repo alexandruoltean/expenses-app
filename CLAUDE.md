@@ -8,7 +8,7 @@ This is a household expense dashboard application built with Angular frontend, C
 ## Architecture Requirements
 - **Frontend**: Angular with Angular Material design system
 - **Backend**: C# with Entity Framework and Repository pattern
-- **Database**: SQL database with Entity Framework
+- **Database**: SQL Server 2022 with Entity Framework
 - **Deployment**: Docker containers for all components (using OrbStack)
 - **Design Patterns**: SOLID principles, GRASP, Repository pattern, Unit of Work pattern
 - **Theming**: Dark and light theme support with instant switching
@@ -59,19 +59,19 @@ cd ../ExpenseTracker.Api.Tests
 /Users/alexoltean/.dotnet/dotnet test
 ```
 
-### Database (PostgreSQL in Docker)
+### Database (SQL Server in Docker)
 ```bash
-# Start PostgreSQL database
-docker run --name postgres-db -e POSTGRES_PASSWORD=ExpenseTracker123! -e POSTGRES_DB=ExpenseTrackerDb -p 5432:5432 -d postgres:15
+# Start SQL Server database
+docker run --name sqlserver-db -e ACCEPT_EULA=Y -e SA_PASSWORD=ExpenseTracker123! -e MSSQL_PID=Express -p 1433:1433 -d mcr.microsoft.com/mssql/server:2022-latest
 
 # Check running containers
 docker ps
 
 # Stop database
-docker stop postgres-db
+docker stop sqlserver-db
 
 # Remove database container
-docker rm postgres-db
+docker rm sqlserver-db
 ```
 
 ## Project Structure
@@ -131,7 +131,7 @@ docker rm postgres-db
 ✅ **Completed Features:**
 - Angular frontend with Material Design
 - C# Web API backend with proper architecture
-- PostgreSQL database with Entity Framework
+- SQL Server 2022 database with Entity Framework
 - Repository and Unit of Work patterns implemented
 - CRUD operations for expenses
 - Dark/light theme switching
@@ -139,19 +139,19 @@ docker rm postgres-db
 - Unit tests for business logic
 - API endpoints with proper error handling
 - Responsive design with Angular Material
+- Chart.js integration for interactive expense visualization
 
 🚀 **Running the Application:**
-1. Start PostgreSQL database: `docker run --name postgres-db -e POSTGRES_PASSWORD=ExpenseTracker123! -e POSTGRES_DB=ExpenseTrackerDb -p 5432:5432 -d postgres:15`
-2. Start backend: `cd backend/ExpenseTracker.Api && export PATH="$PATH:/Users/alexoltean/.dotnet" && /Users/alexoltean/.dotnet/dotnet run`
-3. Start frontend: `cd frontend && npm start`
-4. Open http://localhost:4200 in browser
+1. Start all services: `docker-compose up -d`
+2. Open http://localhost:4200 in browser
+3. API available at http://localhost:5000 with Swagger UI at /swagger
 
 ## Development Workflow
-1. Database runs in Docker on port 5432
+1. SQL Server 2022 database runs in Docker on port 1433
 2. Backend API runs on http://localhost:5000 with Swagger UI at /swagger
 3. Frontend runs on http://localhost:4200
 4. All unit tests pass (4/4 tests passing)
-5. API verified working with curl testing
+5. API verified working with SQL Server
 6. Follow SOLID principles and design patterns implemented
 7. Use meaningful naming conventions
 8. Write minimal, clean code following senior developer standards

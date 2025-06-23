@@ -39,11 +39,11 @@ public class ExpenseContext : DbContext
                 
             entity.Property(e => e.CreatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("NOW()");
+                .HasDefaultValueSql("GETDATE()");
                 
             entity.Property(e => e.UpdatedAt)
                 .IsRequired()
-                .HasDefaultValueSql("NOW()");
+                .HasDefaultValueSql("GETDATE()");
         });
 
         // Seed data

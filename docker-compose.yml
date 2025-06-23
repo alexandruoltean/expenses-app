@@ -1,15 +1,16 @@
 services:
-  # PostgreSQL Database
-  postgres:
-    image: postgres:15
-    container_name: expense-tracker-db
+  # SQL Server Database
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    container_name: expense-tracker-sqlserver
     environment:
-      POSTGRES_PASSWORD: "ExpenseTracker123!"
-      POSTGRES_DB: "ExpenseTrackerDb"
+      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "ExpenseTracker123!"
+      MSSQL_PID: "Express"
     ports:
-      - "5432:5432"
+      - "1433:1433"
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - sqlserver_data:/var/opt/mssql
     networks:
       - expense-tracker-network
 
@@ -21,11 +22,11 @@ services:
     container_name: expense-tracker-api
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ExpenseTrackerDb;Username=postgres;Password=ExpenseTracker123!
+      - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ExpenseTrackerDb;User Id=sa;Password=ExpenseTracker123!;TrustServerCertificate=true;
     ports:
       - "5000:8080"
     depends_on:
-      - postgres
+      - sqlserver
     networks:
       - expense-tracker-network
 
@@ -43,7 +44,7 @@ services:
       - expense-tracker-network
 
 volumes:
-  postgres_data:
+  sqlserver_data:
 
 networks:
   expense-tracker-network:

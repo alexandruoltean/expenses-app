@@ -15,8 +15,16 @@ public class ExpenseService : IExpenseService
 
     public async Task<IEnumerable<ExpenseDto>> GetAllExpensesAsync()
     {
-        var expenses = await _unitOfWork.Expenses.GetAllAsync();
-        return expenses.Select(MapToDto);
+        try
+        {
+            var expenses = await _unitOfWork.Expenses.GetAllAsync();
+            return expenses.Select(MapToDto);
+        }
+        catch (Exception ex)
+        {
+            // Log the exact error for debugging
+            throw new Exception($"Error in GetAllExpensesAsync: {ex.Message}", ex);
+        }
     }
 
     public async Task<ExpenseDto?> GetExpenseByIdAsync(int id)

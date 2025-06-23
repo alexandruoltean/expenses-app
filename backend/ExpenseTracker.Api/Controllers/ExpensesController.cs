@@ -23,16 +23,8 @@ public class ExpensesController : ControllerBase
     [HttpGet]
     public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpenses()
     {
-        try
-        {
-            var expenses = await _expenseService.GetAllExpensesAsync();
-            return Ok(expenses);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "Error retrieving expenses");
-            return StatusCode(500, "An error occurred while retrieving expenses");
-        }
+        var expenses = await _expenseService.GetAllExpensesAsync();
+        return Ok(expenses);
     }
 
     /// <summary>
@@ -73,7 +65,7 @@ public class ExpensesController : ControllerBase
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error creating expense");
-            return StatusCode(500, "An error occurred while creating the expense");
+            return StatusCode(500, $"An error occurred while creating the expense: {ex.Message}");
         }
     }
 

@@ -144,11 +144,11 @@ docker rm sqlserver-db
 🚀 **Running the Application:**
 1. Start all services: `docker-compose up -d`
 2. Open http://localhost:4200 in browser
-3. API available at http://localhost:5000 with Swagger UI at /swagger
+3. API available at http://localhost:5050 with Swagger UI at /swagger
 
 ## Development Workflow
 1. SQL Server 2022 database runs in Docker on port 1433
-2. Backend API runs on http://localhost:5000 with Swagger UI at /swagger
+2. Backend API runs on http://localhost:5050 with Swagger UI at /swagger (changed from 5000 due to macOS AirPlay conflict)
 3. Frontend runs on http://localhost:4200
 4. All unit tests pass (4/4 tests passing)
 5. API verified working with SQL Server

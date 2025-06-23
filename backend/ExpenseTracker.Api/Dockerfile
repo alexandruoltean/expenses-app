@@ -18,5 +18,9 @@ COPY --from=build /app/publish .
 # Expose port
 EXPOSE 8080
 
+# Disable HTTPS redirection in container
+ENV ASPNETCORE_URLS=http://+:8080
+ENV ASPNETCORE_ENVIRONMENT=Development
+
 # Set the entry point
 ENTRYPOINT ["dotnet", "ExpenseTracker.Api.dll"]

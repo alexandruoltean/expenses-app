@@ -24,7 +24,7 @@ services:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=sqlserver,1433;Database=ExpenseTrackerDb;User Id=sa;Password=ExpenseTracker123!;TrustServerCertificate=true;
     ports:
-      - "5000:8080"
+      - "5050:8080"
     depends_on:
       - sqlserver
     networks:

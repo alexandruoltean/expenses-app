@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Configure logging
 builder.Logging.ClearProviders();
 builder.Logging.AddConsole();
-builder.Logging.SetMinimumLevel(LogLevel.Debug);
+builder.Logging.SetMinimumLevel(LogLevel.Trace);
 
 // Add services to the container.
 builder.Services.AddControllers();
@@ -47,7 +47,7 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseCors("AllowAngularApp");
-app.UseHttpsRedirection();
+// app.UseHttpsRedirection(); // Temporarily disabled for debugging
 app.UseAuthorization();
 app.MapControllers();
 

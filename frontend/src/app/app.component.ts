@@ -39,10 +39,6 @@ import { AddExpenseDialogComponent } from './components/add-expense-dialog/add-e
           Dark Mode
         </mat-slide-toggle>
       </div>
-      <button mat-button routerLink="/expenses">
-        <mat-icon>list</mat-icon>
-        Expenses
-      </button>
     </mat-toolbar>
     
     <div class="content-container">

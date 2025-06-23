@@ -1,92 +1,321 @@
 @import '@angular/material/prebuilt-themes/deeppurple-amber.css';
 
+// CSS Custom Properties for theming
+:root {
+  // Light theme colors
+  --bg-primary: #fafafa;
+  --bg-secondary: #ffffff;
+  --bg-tertiary: #f5f5f5;
+  --bg-surface: #ffffff;
+  --bg-card: #ffffff;
+  --bg-hover: #f9f9f9;
+  --bg-active: #f0f0f0;
+  
+  --text-primary: #212121;
+  --text-secondary: #666666;
+  --text-tertiary: #999999;
+  --text-disabled: #cccccc;
+  
+  --border-primary: #e0e0e0;
+  --border-secondary: #f0f0f0;
+  
+  --shadow-light: 0 2px 8px rgba(0,0,0,0.1);
+  --shadow-medium: 0 4px 12px rgba(0,0,0,0.15);
+  --shadow-heavy: 0 8px 25px rgba(0,0,0,0.2);
+  
+  --accent-primary: #667eea;
+  --accent-secondary: #764ba2;
+}
+
+// Dark theme colors
+[data-theme="dark"] {
+  --bg-primary: #121212;
+  --bg-secondary: #1e1e1e;
+  --bg-tertiary: #2d2d2d;
+  --bg-surface: #1e1e1e;
+  --bg-card: #1e1e1e;
+  --bg-hover: #333333;
+  --bg-active: #404040;
+  
+  --text-primary: #ffffff;
+  --text-secondary: #b3b3b3;
+  --text-tertiary: #808080;
+  --text-disabled: #555555;
+  
+  --border-primary: #404040;
+  --border-secondary: #333333;
+  
+  --shadow-light: 0 2px 8px rgba(0,0,0,0.3);
+  --shadow-medium: 0 4px 12px rgba(0,0,0,0.4);
+  --shadow-heavy: 0 8px 25px rgba(0,0,0,0.5);
+  
+  --accent-primary: #bb86fc;
+  --accent-secondary: #9c64f0;
+}
+
 // Global styles with smooth transitions
 html, body {
   transition: background-color 0.3s ease, color 0.3s ease;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
 }
 
-// Light theme (default)
-body {
-  background-color: #fafafa;
-  color: #212121;
-}
-
-// Dark theme overrides
-body.dark-theme {
-  background-color: #121212;
-  color: #ffffff;
+// Dark theme implementation
+[data-theme="dark"] {
   
-  // Material Components dark theme
+  // Material Design Components Dark Theme
   .mat-mdc-card {
-    background-color: #1e1e1e !important;
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-mdc-card-header {
+    background-color: var(--bg-card) !important;
+  }
+  
+  .mat-mdc-card-content {
+    background-color: var(--bg-card) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  // Toolbar
+  .mat-toolbar {
+    background-color: var(--bg-secondary) !important;
+    color: var(--text-primary) !important;
+    border-bottom: 1px solid var(--border-primary);
+  }
+  
+  // Buttons
+  .mat-mdc-button {
+    color: var(--accent-primary) !important;
+  }
+  
+  .mat-mdc-raised-button.mat-primary {
+    background-color: var(--accent-primary) !important;
     color: #ffffff !important;
   }
   
-  .mat-mdc-form-field {
+  .mat-mdc-raised-button.mat-accent {
+    background-color: var(--accent-secondary) !important;
     color: #ffffff !important;
+  }
+  
+  .mat-mdc-icon-button {
+    color: var(--text-secondary) !important;
+  }
+  
+  // Form Fields
+  .mat-mdc-form-field {
+    color: var(--text-primary) !important;
     
     .mat-mdc-form-field-focus-overlay {
       background-color: rgba(255, 255, 255, 0.04);
     }
     
     .mdc-text-field--filled {
-      background-color: rgba(255, 255, 255, 0.04) !important;
+      background-color: var(--bg-tertiary) !important;
+    }
+    
+    .mdc-text-field--outlined {
+      .mdc-notched-outline__leading,
+      .mdc-notched-outline__notch,
+      .mdc-notched-outline__trailing {
+        border-color: var(--border-primary) !important;
+      }
+      
+      &:hover .mdc-notched-outline__leading,
+      &:hover .mdc-notched-outline__notch,
+      &:hover .mdc-notched-outline__trailing {
+        border-color: var(--text-secondary) !important;
+      }
+      
+      &.mdc-text-field--focused .mdc-notched-outline__leading,
+      &.mdc-text-field--focused .mdc-notched-outline__notch,
+      &.mdc-text-field--focused .mdc-notched-outline__trailing {
+        border-color: var(--accent-primary) !important;
+      }
     }
     
     .mdc-floating-label {
-      color: rgba(255, 255, 255, 0.6) !important;
+      color: var(--text-secondary) !important;
     }
     
-    .mdc-line-ripple {
-      &::before {
-        border-bottom-color: rgba(255, 255, 255, 0.42) !important;
-      }
-      &::after {
-        border-bottom-color: #bb86fc !important;
-      }
+    .mdc-floating-label--float-above {
+      color: var(--accent-primary) !important;
     }
   }
   
   .mat-mdc-input-element {
-    color: #ffffff !important;
-  }
-  
-  .mat-mdc-select {
-    color: #ffffff !important;
-  }
-  
-  .mat-mdc-button {
-    color: #bb86fc !important;
+    color: var(--text-primary) !important;
+    caret-color: var(--accent-primary) !important;
     
-    &.mat-primary {
-      color: #ffffff !important;
-      background-color: #6200ea !important;
+    &::placeholder {
+      color: var(--text-tertiary) !important;
     }
   }
   
+  // Select
+  .mat-mdc-select {
+    color: var(--text-primary) !important;
+    
+    .mat-mdc-select-trigger {
+      color: var(--text-primary) !important;
+    }
+    
+    .mat-mdc-select-arrow {
+      color: var(--text-secondary) !important;
+    }
+  }
+  
+  .mat-mdc-select-panel {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-mdc-option {
+    color: var(--text-primary) !important;
+    
+    &:hover {
+      background-color: var(--bg-hover) !important;
+    }
+    
+    &.mat-mdc-option-active {
+      background-color: var(--bg-active) !important;
+    }
+  }
+  
+  // Datepicker
+  .mat-datepicker-popup {
+    background-color: var(--bg-surface) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-calendar {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-calendar-header {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-calendar-table-header {
+    color: var(--text-secondary) !important;
+  }
+  
+  .mat-calendar-body-cell {
+    color: var(--text-primary) !important;
+    
+    &:hover {
+      background-color: var(--bg-hover) !important;
+    }
+  }
+  
+  .mat-calendar-body-selected {
+    background-color: var(--accent-primary) !important;
+    color: #ffffff !important;
+  }
+  
+  // Dialog
+  .mat-mdc-dialog-container {
+    background-color: var(--bg-surface) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-mdc-dialog-title {
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-mdc-dialog-content {
+    color: var(--text-primary) !important;
+  }
+  
+  .mat-mdc-dialog-actions {
+    border-top: 1px solid var(--border-secondary);
+    background-color: var(--bg-tertiary);
+  }
+  
+  // Chips
+  .mat-mdc-chip {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  // Icons
+  .mat-icon {
+    color: inherit;
+  }
+  
+  // Slide Toggle
   .mat-mdc-slide-toggle {
+    color: var(--text-primary) !important;
+    
+    .mdc-label {
+      color: var(--text-primary) !important;
+    }
+    
+    .mat-mdc-slide-toggle-label {
+      color: var(--text-primary) !important;
+    }
+    
     .mdc-switch {
       .mdc-switch__track {
-        background-color: rgba(255, 255, 255, 0.3);
-        transition: background-color 0.15s ease;
+        background-color: var(--border-primary);
+        border: 1px solid var(--border-primary);
       }
       
-      .mdc-switch__handle-track {
-        .mdc-switch__handle {
-          background-color: #ffffff;
-          transition: transform 0.15s ease;
-        }
+      .mdc-switch__handle {
+        background-color: var(--text-secondary);
       }
       
       &.mdc-switch--checked {
         .mdc-switch__track {
-          background-color: #bb86fc;
+          background-color: var(--accent-primary);
+          border-color: var(--accent-primary);
         }
         
         .mdc-switch__handle {
-          background-color: #6200ea;
+          background-color: #ffffff;
         }
       }
+    }
+  }
+  
+  // Snackbar
+  .mat-mdc-snack-bar-container {
+    background-color: var(--bg-tertiary) !important;
+    color: var(--text-primary) !important;
+    border: 1px solid var(--border-primary);
+  }
+  
+  // Progress Spinner
+  .mat-mdc-progress-spinner {
+    .mdc-circular-progress__determinate-circle,
+    .mdc-circular-progress__indeterminate-circle-graphic {
+      stroke: var(--accent-primary) !important;
+    }
+  }
+  
+  // Scrollbars (Webkit)
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  
+  ::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+  }
+  
+  ::-webkit-scrollbar-thumb {
+    background: var(--border-primary);
+    border-radius: 4px;
+    
+    &:hover {
+      background: var(--text-tertiary);
     }
   }
 }

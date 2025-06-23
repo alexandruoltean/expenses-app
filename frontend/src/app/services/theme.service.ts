@@ -4,7 +4,6 @@ import { Injectable } from '@angular/core';
   providedIn: 'root'
 })
 export class ThemeService {
-  private darkThemeClass = 'dark-theme';
   private storageKey = 'theme-preference';
 
   constructor() {
@@ -20,19 +19,19 @@ export class ThemeService {
   }
 
   setTheme(theme: 'light' | 'dark'): void {
-    const body = document.body;
+    const htmlElement = document.documentElement;
     
     if (theme === 'dark') {
-      body.classList.add(this.darkThemeClass);
+      htmlElement.setAttribute('data-theme', 'dark');
     } else {
-      body.classList.remove(this.darkThemeClass);
+      htmlElement.removeAttribute('data-theme');
     }
     
     localStorage.setItem(this.storageKey, theme);
   }
 
   isDarkTheme(): boolean {
-    return document.body.classList.contains(this.darkThemeClass);
+    return document.documentElement.getAttribute('data-theme') === 'dark';
   }
 
   toggleTheme(): void {

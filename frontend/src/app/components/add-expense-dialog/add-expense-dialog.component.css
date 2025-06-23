@@ -1,6 +1,8 @@
 .dialog-container {
   min-width: 400px;
   max-width: 500px;
+  background: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 .expense-form {
@@ -18,17 +20,22 @@
   margin-bottom: 0;
   font-size: 1.5rem;
   font-weight: 500;
+  color: var(--text-primary);
 }
 
 .mat-mdc-dialog-content {
   padding: 0 24px;
   max-height: 600px;
   overflow: auto;
+  background: var(--bg-surface);
+  color: var(--text-primary);
 }
 
 .mat-mdc-dialog-actions {
   padding: 16px 24px;
   gap: 8px;
+  background: var(--bg-tertiary);
+  border-top: 1px solid var(--border-secondary);
 }
 
 .mat-mdc-form-field {
@@ -41,6 +48,37 @@
 
 .mat-mdc-raised-button mat-icon {
   margin-right: 8px;
+}
+
+/* Dark theme overrides for dialog */
+[data-theme="dark"] {
+  .dialog-container {
+    background: var(--bg-surface);
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-mdc-dialog-content {
+    background: var(--bg-surface);
+  }
+  
+  .mat-mdc-dialog-actions {
+    background: var(--bg-tertiary);
+  }
+  
+  .mat-mdc-button {
+    color: var(--text-secondary);
+    border: 1px solid var(--border-primary);
+  }
+  
+  .mat-mdc-raised-button.mat-primary {
+    background-color: var(--accent-primary);
+    color: #ffffff;
+  }
+  
+  .mat-mdc-raised-button.mat-accent {
+    background-color: var(--accent-secondary);
+    color: #ffffff;
+  }
 }
 
 /* Responsive design */

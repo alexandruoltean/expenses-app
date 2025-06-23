@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>Expense Tracker</title>
+  <base href="/">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="icon" type="image/x-icon" href="favicon.ico">
+  <link rel="preconnect" href="https://fonts.gstatic.com">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body class="mat-typography">
+  <app-root></app-root>
+  <script>
+    // Add debugging to catch any errors
+    window.addEventListener('error', function(e) {
+      console.error('Error:', e.error);
+      document.body.innerHTML += '<div style="color: red; background: yellow; padding: 10px;">Error: ' + e.error.message + '</div>';
+    });
+    
+    window.addEventListener('unhandledrejection', function(e) {
+      console.error('Promise rejection:', e.reason);
+      document.body.innerHTML += '<div style="color: red; background: yellow; padding: 10px;">Promise error: ' + e.reason + '</div>';
+    });
+    
+    // Add a timeout to check if Angular loaded
+    setTimeout(function() {
+      const appRoot = document.querySelector('app-root');
+      if (appRoot && appRoot.innerHTML.trim() === '') {
+        document.body.innerHTML += '<div style="color: orange; background: lightblue; padding: 10px;">Angular did not render anything in app-root</div>';
+      }
+    }, 3000);
+  </script>
+</body>
+</html>

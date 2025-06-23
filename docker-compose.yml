@@ -1,0 +1,50 @@
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15
+    container_name: expense-tracker-db
+    environment:
+      POSTGRES_PASSWORD: "ExpenseTracker123!"
+      POSTGRES_DB: "ExpenseTrackerDb"
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - expense-tracker-network
+
+  # Backend API
+  backend:
+    build:
+      context: ./backend/ExpenseTracker.Api
+      dockerfile: Dockerfile
+    container_name: expense-tracker-api
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Host=postgres;Database=ExpenseTrackerDb;Username=postgres;Password=ExpenseTracker123!
+    ports:
+      - "5000:8080"
+    depends_on:
+      - postgres
+    networks:
+      - expense-tracker-network
+
+  # Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: expense-tracker-frontend
+    ports:
+      - "4200:80"
+    depends_on:
+      - backend
+    networks:
+      - expense-tracker-network
+
+volumes:
+  postgres_data:
+
+networks:
+  expense-tracker-network:
+    driver: bridge

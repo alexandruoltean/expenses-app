@@ -1,0 +1,129 @@
+@import '@angular/material/prebuilt-themes/deeppurple-amber.css';
+
+// Global styles with smooth transitions
+html, body {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+// Light theme (default)
+body {
+  background-color: #fafafa;
+  color: #212121;
+}
+
+// Dark theme overrides
+body.dark-theme {
+  background-color: #121212;
+  color: #ffffff;
+  
+  // Material Components dark theme
+  .mat-mdc-card {
+    background-color: #1e1e1e !important;
+    color: #ffffff !important;
+  }
+  
+  .mat-mdc-form-field {
+    color: #ffffff !important;
+    
+    .mat-mdc-form-field-focus-overlay {
+      background-color: rgba(255, 255, 255, 0.04);
+    }
+    
+    .mdc-text-field--filled {
+      background-color: rgba(255, 255, 255, 0.04) !important;
+    }
+    
+    .mdc-floating-label {
+      color: rgba(255, 255, 255, 0.6) !important;
+    }
+    
+    .mdc-line-ripple {
+      &::before {
+        border-bottom-color: rgba(255, 255, 255, 0.42) !important;
+      }
+      &::after {
+        border-bottom-color: #bb86fc !important;
+      }
+    }
+  }
+  
+  .mat-mdc-input-element {
+    color: #ffffff !important;
+  }
+  
+  .mat-mdc-select {
+    color: #ffffff !important;
+  }
+  
+  .mat-mdc-button {
+    color: #bb86fc !important;
+    
+    &.mat-primary {
+      color: #ffffff !important;
+      background-color: #6200ea !important;
+    }
+  }
+  
+  .mat-mdc-slide-toggle {
+    .mdc-switch {
+      .mdc-switch__track {
+        background-color: rgba(255, 255, 255, 0.3);
+        transition: background-color 0.15s ease;
+      }
+      
+      .mdc-switch__handle-track {
+        .mdc-switch__handle {
+          background-color: #ffffff;
+          transition: transform 0.15s ease;
+        }
+      }
+      
+      &.mdc-switch--checked {
+        .mdc-switch__track {
+          background-color: #bb86fc;
+        }
+        
+        .mdc-switch__handle {
+          background-color: #6200ea;
+        }
+      }
+    }
+  }
+}
+
+html, body { 
+  height: 100%; 
+}
+
+body { 
+  margin: 0; 
+  font-family: Roboto, "Helvetica Neue", sans-serif; 
+}
+
+.mat-toolbar {
+  justify-content: space-between;
+}
+
+.spacer {
+  flex: 1 1 auto;
+}
+
+.content-container {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 20px;
+}
+
+.expense-card {
+  margin-bottom: 16px;
+}
+
+.expense-form {
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.expense-form .mat-mdc-form-field {
+  width: 100%;
+  margin-bottom: 16px;
+}

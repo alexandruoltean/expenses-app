@@ -1,0 +1,261 @@
+<div class="group-insights-container" *ngIf="currentGroup">
+  <!-- Header -->
+  <div class="insights-header">
+    <mat-card class="header-card">
+      <mat-card-content>
+        <div class="header-content">
+          <div class="header-info">
+            <mat-icon class="header-icon">analytics</mat-icon>
+            <div class="header-details">
+              <h1>{{currentGroup.name}} Insights</h1>
+              <p>Spending analytics and member insights</p>
+            </div>
+          </div>
+          <button mat-raised-button color="primary" (click)="refreshInsights()" [disabled]="loading">
+            <mat-icon>refresh</mat-icon>
+            Refresh
+          </button>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading" class="loading-state">
+    <mat-card>
+      <mat-card-content>
+        <div class="loading-content">
+          <mat-progress-spinner mode="indeterminate" diameter="60"></mat-progress-spinner>
+          <p>Loading group insights...</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+
+  <!-- Main Content -->
+  <div *ngIf="!loading" class="insights-content">
+    
+    <!-- Summary Cards -->
+    <div class="summary-row" *ngIf="memberSpending">
+      <mat-card class="summary-card total-card">
+        <mat-card-content>
+          <div class="summary-content">
+            <div class="summary-icon">
+              <mat-icon>account_balance_wallet</mat-icon>
+            </div>
+            <div class="summary-details">
+              <h3>Total Group Spending</h3>
+              <p class="summary-value">{{formatCurrency(memberSpending.totalGroupSpending)}}</p>
+              <span class="summary-period">All Time</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card members-card">
+        <mat-card-content>
+          <div class="summary-content">
+            <div class="summary-icon">
+              <mat-icon>group</mat-icon>
+            </div>
+            <div class="summary-details">
+              <h3>Active Members</h3>
+              <p class="summary-value">{{memberSpending.members.length}}</p>
+              <span class="summary-period">Contributing</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+
+      <mat-card class="summary-card avg-card">
+        <mat-card-content>
+          <div class="summary-content">
+            <div class="summary-icon">
+              <mat-icon>trending_up</mat-icon>
+            </div>
+            <div class="summary-details">
+              <h3>Average per Member</h3>
+              <p class="summary-value">{{formatCurrency(memberSpending.totalGroupSpending / memberSpending.members.length)}}</p>
+              <span class="summary-period">Per Person</span>
+            </div>
+          </div>
+        </mat-card-content>
+      </mat-card>
+    </div>
+
+    <!-- Charts and Analysis -->
+    <mat-tab-group class="insights-tabs" animationDuration="300ms">
+      
+      <!-- Member Spending Tab -->
+      <mat-tab label="Member Spending">
+        <div class="tab-content">
+          <div class="charts-row">
+            <!-- Member Spending Pie Chart -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>pie_chart</mat-icon>
+                  Spending Distribution
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas
+                    baseChart
+                    [data]="memberSpendingChartData"
+                    [options]="memberSpendingChartOptions"
+                    [type]="memberSpendingChartType">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+
+            <!-- Member Details List -->
+            <mat-card class="chart-card">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>people</mat-icon>
+                  Member Details
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="member-list" *ngIf="memberSpending">
+                  <div *ngFor="let member of memberSpending.members; let i = index" class="member-item">
+                    <div class="member-avatar" style="background-color: #667eea">
+                      {{member.username.charAt(0).toUpperCase()}}
+                    </div>
+                    <div class="member-details">
+                      <h4>{{member.username}}</h4>
+                      <p>{{formatCurrency(member.totalAmount)}} • {{member.expenseCount}} expenses</p>
+                      <p class="member-percentage">{{member.percentage.toFixed(1)}}% of total</p>
+                    </div>
+                    <div class="member-stats">
+                      <div class="stat-item">
+                        <span class="stat-label">Avg</span>
+                        <span class="stat-value">{{formatCurrency(member.averageExpense)}}</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Category Analysis Tab -->
+      <mat-tab label="Categories">
+        <div class="tab-content">
+          <div class="charts-row">
+            <!-- Category Bar Chart -->
+            <mat-card class="chart-card category-chart">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>bar_chart</mat-icon>
+                  Spending by Category
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="chart-container">
+                  <canvas
+                    baseChart
+                    [data]="categoryChartData"
+                    [options]="categoryChartOptions"
+                    [type]="categoryChartType">
+                  </canvas>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+
+          <!-- Category Details -->
+          <div class="category-details-row">
+            <mat-card class="category-details-card" *ngFor="let category of categoryInsights">
+              <mat-card-header>
+                <mat-card-title>{{category.category}}</mat-card-title>
+                <mat-card-subtitle>{{formatCurrency(category.totalAmount)}} total</mat-card-subtitle>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="category-leader">
+                  <mat-icon class="leader-icon">star</mat-icon>
+                  <span><strong>{{category.topSpender}}</strong> leads with {{formatCurrency(category.topSpenderAmount)}}</span>
+                </div>
+                <div class="category-breakdown">
+                  <div *ngFor="let member of category.memberBreakdown" class="breakdown-item">
+                    <span class="member-name">{{member.username}}</span>
+                    <span class="member-amount">{{formatCurrency(member.amount)}}</span>
+                    <span class="member-percentage">({{member.percentage.toFixed(1)}}%)</span>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+      <!-- Rankings Tab -->
+      <mat-tab label="Rankings">
+        <div class="tab-content">
+          <div class="rankings-grid">
+            <mat-card class="ranking-card" *ngFor="let ranking of rankings">
+              <mat-card-header>
+                <mat-card-title>
+                  <mat-icon>{{getRankingIcon(ranking.category)}}</mat-icon>
+                  {{ranking.category}}
+                </mat-card-title>
+              </mat-card-header>
+              <mat-card-content>
+                <div class="ranking-list">
+                  <div *ngFor="let entry of ranking.rankings" 
+                       class="ranking-entry"
+                       [class.first-place]="entry.rank === 1"
+                       [class.second-place]="entry.rank === 2"
+                       [class.third-place]="entry.rank === 3">
+                    <div class="ranking-position">
+                      <span class="rank-number">{{entry.rank}}</span>
+                      <mat-icon *ngIf="entry.rank <= 3" class="medal-icon">
+                        {{entry.rank === 1 ? 'emoji_events' : entry.rank === 2 ? 'military_tech' : 'workspace_premium'}}
+                      </mat-icon>
+                    </div>
+                    <div class="ranking-details">
+                      <h4>{{entry.username}}</h4>
+                      <p>{{entry.value | number:'1.2-2'}}{{ranking.category === 'Most Active' ? '' : ' USD'}}</p>
+                      <span class="additional-info" *ngIf="entry.additionalInfo">{{entry.additionalInfo}}</span>
+                    </div>
+                  </div>
+                </div>
+              </mat-card-content>
+            </mat-card>
+          </div>
+        </div>
+      </mat-tab>
+
+    </mat-tab-group>
+  </div>
+
+  <!-- Empty State -->
+  <div *ngIf="!loading && (!memberSpending || memberSpending.members.length === 0)" class="empty-state">
+    <mat-card>
+      <mat-card-content>
+        <div class="empty-content">
+          <mat-icon class="empty-icon">analytics</mat-icon>
+          <h2>No Insights Available</h2>
+          <p>Add some group expenses to see detailed analytics and insights.</p>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
+</div>
+
+<!-- Not in group state -->
+<div *ngIf="!currentGroup" class="no-group-state">
+  <mat-card>
+    <mat-card-content>
+      <div class="no-group-content">
+        <mat-icon class="no-group-icon">group_off</mat-icon>
+        <h2>Select a Group</h2>
+        <p>Group insights are only available when viewing group expenses.</p>
+      </div>
+    </mat-card-content>
+  </mat-card>
+</div>

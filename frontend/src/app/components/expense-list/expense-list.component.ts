@@ -14,12 +14,14 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatDatepickerModule } from '@angular/material/datepicker';
 import { MatNativeDateModule } from '@angular/material/core';
 import { MatTooltipModule } from '@angular/material/tooltip';
+import { MatTabsModule } from '@angular/material/tabs';
 import { FormControl, ReactiveFormsModule, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Observable } from 'rxjs';
 import { Expense, CreateExpenseRequest } from '../../models/expense.model';
 import { ExpenseService } from '../../services/expense.service';
 import { GroupService } from '../../services/group.service';
 import { Group } from '../../models/group.model';
+import { GroupInsightsComponent } from '../group-insights/group-insights.component';
 import { BaseChartDirective } from 'ng2-charts';
 import { 
   Chart,
@@ -50,6 +52,8 @@ import {
     MatDialogModule,
     MatChipsModule,
     MatTooltipModule,
+    MatTabsModule,
+    GroupInsightsComponent,
     BaseChartDirective
   ],
   templateUrl: './expense-list.component.html',

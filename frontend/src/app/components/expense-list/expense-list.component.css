@@ -925,3 +925,21 @@
 [data-theme="dark"] .expense-amount {
   color: #4caf50;
 }
+
+/* Expense Author Styling */
+.expense-author {
+  font-size: 12px !important;
+  color: var(--text-tertiary) !important;
+  font-style: italic !important;
+  font-weight: 400 !important;
+  margin-top: 2px !important;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.expense-author::before {
+  content: "👤";
+  font-size: 11px;
+  opacity: 0.7;
+}

@@ -1,3 +1,5 @@
+using Microsoft.EntityFrameworkCore;
+using ExpenseTracker.Api.Data;
 using ExpenseTracker.Api.Data.UnitOfWork;
 using ExpenseTracker.Api.DTOs;
 using ExpenseTracker.Api.Models;
@@ -7,19 +9,42 @@ namespace ExpenseTracker.Api.Services;
 public class ExpenseService : IExpenseService
 {
     private readonly IUnitOfWork _unitOfWork;
+    private readonly ExpenseContext _context;
+    private readonly IGroupService _groupService;
 
-    public ExpenseService(IUnitOfWork unitOfWork)
+    public ExpenseService(IUnitOfWork unitOfWork, ExpenseContext context, IGroupService groupService)
     {
         _unitOfWork = unitOfWork;
+        _context = context;
+        _groupService = groupService;
     }
 
-    public async Task<IEnumerable<ExpenseDto>> GetAllExpensesAsync(Guid userId)
+    public async Task<IEnumerable<ExpenseDto>> GetAllExpensesAsync(Guid userId, int? groupId = null)
     {
         try
         {
-            var expenses = await _unitOfWork.Expenses.GetAllAsync();
-            var userExpenses = expenses.Where(e => e.UserId == userId);
-            return userExpenses.Select(MapToDto);
+            var query = _context.Expenses
+                .Include(e => e.User)
+                .Include(e => e.Group)
+                .AsQueryable();
+
+            if (groupId.HasValue)
+            {
+                // For group expenses, check if user is in the group
+                var isUserInGroup = await _groupService.IsUserInGroupAsync(userId, groupId.Value);
+                if (!isUserInGroup)
+                    return new List<ExpenseDto>();
+                
+                query = query.Where(e => e.GroupId == groupId.Value);
+            }
+            else
+            {
+                // For personal expenses, get expenses without a group for this user
+                query = query.Where(e => e.UserId == userId && e.GroupId == null);
+            }
+
+            var expenses = await query.ToListAsync();
+            return expenses.Select(MapToDto);
         }
         catch (Exception ex)
         {
@@ -38,6 +63,14 @@ public class ExpenseService : IExpenseService
 
     public async Task<ExpenseDto> CreateExpenseAsync(CreateExpenseDto createExpenseDto, Guid userId)
     {
+        // If groupId is provided, verify user is in the group
+        if (createExpenseDto.GroupId.HasValue)
+        {
+            var isUserInGroup = await _groupService.IsUserInGroupAsync(userId, createExpenseDto.GroupId.Value);
+            if (!isUserInGroup)
+                throw new UnauthorizedAccessException("User is not a member of the specified group");
+        }
+
         var expense = new Expense
         {
             Title = createExpenseDto.Title,
@@ -47,13 +80,20 @@ public class ExpenseService : IExpenseService
             Date = createExpenseDto.Date,
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
-            UserId = userId
+            UserId = userId,
+            GroupId = createExpenseDto.GroupId
         };
 
         await _unitOfWork.Expenses.AddAsync(expense);
         await _unitOfWork.SaveChangesAsync();
 
-        return MapToDto(expense);
+        // Load related data for DTO mapping
+        var expenseWithIncludes = await _context.Expenses
+            .Include(e => e.User)
+            .Include(e => e.Group)
+            .FirstOrDefaultAsync(e => e.Id == expense.Id);
+
+        return MapToDto(expenseWithIncludes ?? expense);
     }
 
     public async Task<ExpenseDto?> UpdateExpenseAsync(int id, UpdateExpenseDto updateExpenseDto, Guid userId)
@@ -95,33 +135,77 @@ public class ExpenseService : IExpenseService
         return await _unitOfWork.SaveChangesReturnBoolAsync();
     }
 
-    public async Task<IEnumerable<ExpenseDto>> GetExpensesByMonthAsync(int year, int month, Guid userId)
+    public async Task<IEnumerable<ExpenseDto>> GetExpensesByMonthAsync(int year, int month, Guid userId, int? groupId = null)
     {
-        var expenses = await _unitOfWork.Expenses.GetExpensesByMonthAsync(year, month);
-        var userExpenses = expenses.Where(e => e.UserId == userId);
-        return userExpenses.Select(MapToDto);
-    }
+        var query = _context.Expenses
+            .Include(e => e.User)
+            .Include(e => e.Group)
+            .Where(e => e.Date.Year == year && e.Date.Month == month);
 
-    public async Task<IEnumerable<ExpenseCategoryTotalDto>> GetExpensesTotalByCategoryAsync(Guid userId)
-    {
-        var allExpenses = await _unitOfWork.Expenses.GetAllAsync();
-        var userExpenses = allExpenses.Where(e => e.UserId == userId);
-        var categoryTotals = userExpenses
-            .GroupBy(e => e.Category)
-            .ToDictionary(g => g.Key, g => g.Sum(e => e.Amount));
-        
-        return categoryTotals.Select(ct => new ExpenseCategoryTotalDto
+        if (groupId.HasValue)
         {
-            Category = ct.Key,
-            Total = ct.Value
-        });
+            var isUserInGroup = await _groupService.IsUserInGroupAsync(userId, groupId.Value);
+            if (!isUserInGroup)
+                return new List<ExpenseDto>();
+            
+            query = query.Where(e => e.GroupId == groupId.Value);
+        }
+        else
+        {
+            query = query.Where(e => e.UserId == userId && e.GroupId == null);
+        }
+
+        var expenses = await query.ToListAsync();
+        return expenses.Select(MapToDto);
     }
 
-    public async Task<decimal> GetTotalExpensesAsync(Guid userId)
+    public async Task<IEnumerable<ExpenseCategoryTotalDto>> GetExpensesTotalByCategoryAsync(Guid userId, int? groupId = null)
     {
-        var allExpenses = await _unitOfWork.Expenses.GetAllAsync();
-        var userExpenses = allExpenses.Where(e => e.UserId == userId);
-        return userExpenses.Sum(e => e.Amount);
+        var query = _context.Expenses.AsQueryable();
+
+        if (groupId.HasValue)
+        {
+            var isUserInGroup = await _groupService.IsUserInGroupAsync(userId, groupId.Value);
+            if (!isUserInGroup)
+                return new List<ExpenseCategoryTotalDto>();
+            
+            query = query.Where(e => e.GroupId == groupId.Value);
+        }
+        else
+        {
+            query = query.Where(e => e.UserId == userId && e.GroupId == null);
+        }
+
+        var categoryTotals = await query
+            .GroupBy(e => e.Category)
+            .Select(g => new ExpenseCategoryTotalDto
+            {
+                Category = g.Key,
+                Total = g.Sum(e => e.Amount)
+            })
+            .ToListAsync();
+        
+        return categoryTotals;
+    }
+
+    public async Task<decimal> GetTotalExpensesAsync(Guid userId, int? groupId = null)
+    {
+        var query = _context.Expenses.AsQueryable();
+
+        if (groupId.HasValue)
+        {
+            var isUserInGroup = await _groupService.IsUserInGroupAsync(userId, groupId.Value);
+            if (!isUserInGroup)
+                return 0;
+            
+            query = query.Where(e => e.GroupId == groupId.Value);
+        }
+        else
+        {
+            query = query.Where(e => e.UserId == userId && e.GroupId == null);
+        }
+
+        return await query.SumAsync(e => e.Amount);
     }
 
     private static ExpenseDto MapToDto(Expense expense)
@@ -135,7 +219,10 @@ public class ExpenseService : IExpenseService
             Description = expense.Description,
             Date = expense.Date,
             CreatedAt = expense.CreatedAt,
-            UpdatedAt = expense.UpdatedAt
+            UpdatedAt = expense.UpdatedAt,
+            GroupId = expense.GroupId,
+            GroupName = expense.Group?.Name,
+            CreatedByUsername = expense.User?.Username ?? ""
         };
     }
 }

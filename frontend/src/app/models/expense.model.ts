@@ -7,6 +7,9 @@ export interface Expense {
   date: Date;
   createdAt?: Date;
   updatedAt?: Date;
+  groupId?: number;
+  groupName?: string;
+  createdByUsername?: string;
 }
 
 export interface CreateExpenseRequest {
@@ -15,6 +18,7 @@ export interface CreateExpenseRequest {
   category: string;
   description?: string;
   date: Date;
+  groupId?: number;
 }
 
 export interface UpdateExpenseRequest {

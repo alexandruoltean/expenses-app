@@ -1,0 +1,138 @@
+<div mat-dialog-title class="dialog-header">
+  <mat-icon>group</mat-icon>
+  <span>Manage Groups</span>
+  <button mat-icon-button (click)="close()" class="close-button">
+    <mat-icon>close</mat-icon>
+  </button>
+</div>
+
+<div mat-dialog-content class="dialog-content">
+  <mat-tab-group>
+    <!-- My Groups Tab -->
+    <mat-tab label="My Groups">
+      <div class="tab-content">
+        <div *ngIf="(groups$ | async)?.length === 0" class="empty-state">
+          <mat-icon>group_off</mat-icon>
+          <p>You're not part of any groups yet.</p>
+          <p>Create a new group or join an existing one!</p>
+        </div>
+
+        <div *ngFor="let group of groups$ | async" class="group-card">
+          <mat-card>
+            <mat-card-header>
+              <mat-card-title>{{ group.name }}</mat-card-title>
+              <mat-card-subtitle>{{ group.memberCount }} member(s) • {{ group.userRole }}</mat-card-subtitle>
+            </mat-card-header>
+            
+            <mat-card-content>
+              <p *ngIf="group.description">{{ group.description }}</p>
+              <div class="group-info">
+                <div class="invite-code">
+                  <span class="label">Invite Code:</span>
+                  <code>{{ group.inviteCode }}</code>
+                  <button mat-icon-button (click)="copyInviteCode(group.inviteCode)" title="Copy invite code">
+                    <mat-icon>content_copy</mat-icon>
+                  </button>
+                </div>
+                <small class="created-info">
+                  Created by {{ group.createdByUsername }} on {{ group.createdAt | date:'short' }}
+                </small>
+              </div>
+            </mat-card-content>
+
+            <mat-card-actions>
+              <button mat-button (click)="switchToGroup(group)">
+                <mat-icon>switch_account</mat-icon>
+                Switch To
+              </button>
+              <button mat-button (click)="loadGroupMembers(group)">
+                <mat-icon>people</mat-icon>
+                Members
+              </button>
+              <button mat-button color="warn" (click)="leaveGroup(group)">
+                <mat-icon>exit_to_app</mat-icon>
+                Leave
+              </button>
+            </mat-card-actions>
+          </mat-card>
+        </div>
+
+        <!-- Group Members Panel -->
+        <div *ngIf="selectedGroupMembers.length > 0" class="members-panel">
+          <h3>Group Members</h3>
+          <mat-list>
+            <mat-list-item *ngFor="let member of selectedGroupMembers">
+              <mat-icon matListItemIcon>person</mat-icon>
+              <div matListItemTitle>{{ member.username }}</div>
+              <div matListItemLine>{{ member.role }} • Joined {{ member.joinedAt | date:'short' }}</div>
+            </mat-list-item>
+          </mat-list>
+        </div>
+      </div>
+    </mat-tab>
+
+    <!-- Create Group Tab -->
+    <mat-tab label="Create Group">
+      <div class="tab-content">
+        <form [formGroup]="createGroupForm" (ngSubmit)="onCreateGroup()">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Group Name</mat-label>
+            <input matInput formControlName="name" placeholder="Enter group name" maxlength="100">
+            <mat-error *ngIf="createGroupForm.get('name')?.hasError('required')">
+              Group name is required
+            </mat-error>
+            <mat-error *ngIf="createGroupForm.get('name')?.hasError('maxlength')">
+              Group name cannot exceed 100 characters
+            </mat-error>
+          </mat-form-field>
+
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Description (Optional)</mat-label>
+            <textarea matInput formControlName="description" placeholder="Describe your group" 
+                     rows="3" maxlength="500"></textarea>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" 
+                   [disabled]="createGroupForm.invalid || loading">
+              <mat-icon>add</mat-icon>
+              Create Group
+            </button>
+          </div>
+        </form>
+      </div>
+    </mat-tab>
+
+    <!-- Join Group Tab -->
+    <mat-tab label="Join Group">
+      <div class="tab-content">
+        <form [formGroup]="joinGroupForm" (ngSubmit)="onJoinGroup()">
+          <mat-form-field appearance="fill" class="full-width">
+            <mat-label>Invite Code</mat-label>
+            <input matInput formControlName="inviteCode" placeholder="Enter 8-character invite code" 
+                   maxlength="8" style="text-transform: uppercase;">
+            <mat-error *ngIf="joinGroupForm.get('inviteCode')?.hasError('required')">
+              Invite code is required
+            </mat-error>
+            <mat-error *ngIf="joinGroupForm.get('inviteCode')?.hasError('minlength') || joinGroupForm.get('inviteCode')?.hasError('maxlength')">
+              Invite code must be exactly 8 characters
+            </mat-error>
+          </mat-form-field>
+
+          <div class="form-actions">
+            <button mat-raised-button color="primary" type="submit" 
+                   [disabled]="joinGroupForm.invalid || loading">
+              <mat-icon>group_add</mat-icon>
+              Join Group
+            </button>
+          </div>
+        </form>
+
+        <div class="help-text">
+          <mat-icon>info</mat-icon>
+          <p>Get an invite code from a group member to join their group.</p>
+        </div>
+      </div>
+    </mat-tab>
+  </mat-tab-group>
+</div>

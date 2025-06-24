@@ -11,6 +11,7 @@ import { MatNativeDateModule, DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } f
 import { MatIconModule } from '@angular/material/icon';
 import { MatSnackBar, MatSnackBarModule } from '@angular/material/snack-bar';
 import { ExpenseService } from '../../services/expense.service';
+import { GroupService } from '../../services/group.service';
 import { trigger, state, style, transition, animate } from '@angular/animations';
 
 @Component({
@@ -63,6 +64,7 @@ export class AddExpenseDialogComponent implements OnInit {
   constructor(
     private formBuilder: FormBuilder,
     private expenseService: ExpenseService,
+    private groupService: GroupService,
     private snackBar: MatSnackBar,
     private dialogRef: MatDialogRef<AddExpenseDialogComponent>
   ) {
@@ -105,6 +107,12 @@ export class AddExpenseDialogComponent implements OnInit {
     
     this.loading = true;
     const formValue = this.expenseForm.value;
+    
+    // Add current group context if there is one
+    const currentGroup = this.groupService.getCurrentGroup();
+    if (currentGroup) {
+      formValue.groupId = currentGroup.id;
+    }
     
     this.expenseService.createExpense(formValue).subscribe({
       next: () => {

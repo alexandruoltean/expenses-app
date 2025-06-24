@@ -1,4 +1,31 @@
 <div class="dashboard-container">
+  
+  <!-- Context Header -->
+  <div class="context-header" *ngIf="!loading">
+    <mat-card class="context-card">
+      <mat-card-content>
+        <div class="context-content">
+          <div class="context-info">
+            <mat-icon>{{isPersonalView ? 'person' : 'group'}}</mat-icon>
+            <div class="context-details">
+              <h2>{{contextName}} Expenses</h2>
+              <p *ngIf="!isPersonalView && currentGroup">
+                {{currentGroup.memberCount}} member(s) • {{currentGroup.userRole}}
+                <span *ngIf="currentGroup.description"> • {{currentGroup.description}}</span>
+              </p>
+              <p *ngIf="isPersonalView">Your personal expense tracking</p>
+            </div>
+          </div>
+          <div class="context-actions" *ngIf="!isPersonalView && currentGroup">
+            <button mat-button (click)="copyInviteCode()" class="invite-button">
+              <mat-icon>content_copy</mat-icon>
+              Copy Invite Code
+            </button>
+          </div>
+        </div>
+      </mat-card-content>
+    </mat-card>
+  </div>
 
   <div *ngIf="loading" class="loading-state">
     <mat-card>

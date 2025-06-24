@@ -18,6 +18,8 @@ import { FormControl, ReactiveFormsModule, FormBuilder, FormGroup, Validators } 
 import { Observable } from 'rxjs';
 import { Expense, CreateExpenseRequest } from '../../models/expense.model';
 import { ExpenseService } from '../../services/expense.service';
+import { GroupService } from '../../services/group.service';
+import { Group } from '../../models/group.model';
 import { BaseChartDirective } from 'ng2-charts';
 import { 
   Chart,
@@ -58,6 +60,11 @@ export class ExpenseListComponent implements OnInit {
   filteredExpenses: Expense[] = [];
   categories: string[] = [];
   loading = false;
+  
+  // Group context properties
+  currentGroup: Group | null = null;
+  isPersonalView = true;
+  contextName = 'Personal';
   
   categoryFilter = new FormControl([]);
   monthFilter = new FormControl();
@@ -157,6 +164,7 @@ export class ExpenseListComponent implements OnInit {
 
   constructor(
     private expenseService: ExpenseService,
+    private groupService: GroupService,
     private snackBar: MatSnackBar,
     private dialog: MatDialog
   ) {
@@ -178,6 +186,7 @@ export class ExpenseListComponent implements OnInit {
     this.loadExpenses();
     this.setupFilters();
     this.subscribeToExpenses();
+    this.subscribeToGroupChanges();
   }
 
   private setupFilters() {
@@ -195,6 +204,14 @@ export class ExpenseListComponent implements OnInit {
       error: (error) => {
         console.error('Error receiving expenses:', error);
       }
+    });
+  }
+
+  private subscribeToGroupChanges() {
+    this.groupService.currentGroup$.subscribe(group => {
+      this.currentGroup = group;
+      this.isPersonalView = group === null;
+      this.contextName = group ? group.name : 'Personal';
     });
   }
 
@@ -540,6 +557,17 @@ export class ExpenseListComponent implements OnInit {
     };
   }
 
+
+  copyInviteCode() {
+    if (this.currentGroup?.inviteCode) {
+      navigator.clipboard.writeText(this.currentGroup.inviteCode).then(() => {
+        this.snackBar.open('Invite code copied to clipboard!', 'Close', {
+          duration: 2000,
+          panelClass: ['success-snackbar']
+        });
+      });
+    }
+  }
 
   openEditExpenseDialog(expense: Expense): void {
     const dialogRef = this.dialog.open(EditExpenseDialogComponent, {

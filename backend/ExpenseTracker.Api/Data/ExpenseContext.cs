@@ -11,6 +11,8 @@ public class ExpenseContext : DbContext
 
     public DbSet<Expense> Expenses { get; set; } = null!;
     public DbSet<User> Users { get; set; } = null!;
+    public DbSet<Group> Groups { get; set; } = null!;
+    public DbSet<UserGroup> UserGroups { get; set; } = null!;
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -78,15 +80,80 @@ public class ExpenseContext : DbContext
                 .IsRequired()
                 .HasDefaultValueSql("GETDATE()");
                 
-            // Configure relationship
+            // Configure relationships
             entity.HasOne(e => e.User)
                 .WithMany(u => u.Expenses)
                 .HasForeignKey(e => e.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(e => e.Group)
+                .WithMany(g => g.Expenses)
+                .HasForeignKey(e => e.GroupId)
+                .OnDelete(DeleteBehavior.SetNull);
         });
 
-        // Seed data
-        SeedData(modelBuilder);
+        // Configure Group entity
+        modelBuilder.Entity<Group>(entity =>
+        {
+            entity.HasKey(e => e.Id);
+            
+            entity.Property(e => e.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+                
+            entity.Property(e => e.Description)
+                .HasMaxLength(500);
+                
+            entity.Property(e => e.InviteCode)
+                .IsRequired()
+                .HasMaxLength(10);
+                
+            entity.HasIndex(e => e.InviteCode)
+                .IsUnique();
+                
+            entity.Property(e => e.CreatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()");
+                
+            entity.Property(e => e.UpdatedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()");
+                
+            // Configure relationship with creator
+            entity.HasOne(g => g.CreatedByUser)
+                .WithMany(u => u.CreatedGroups)
+                .HasForeignKey(g => g.CreatedBy)
+                .OnDelete(DeleteBehavior.Restrict);
+        });
+
+        // Configure UserGroup entity (many-to-many junction table)
+        modelBuilder.Entity<UserGroup>(entity =>
+        {
+            entity.HasKey(ug => new { ug.UserId, ug.GroupId });
+            
+            entity.Property(ug => ug.Role)
+                .IsRequired()
+                .HasMaxLength(20)
+                .HasDefaultValue("Member");
+                
+            entity.Property(ug => ug.JoinedAt)
+                .IsRequired()
+                .HasDefaultValueSql("GETDATE()");
+                
+            // Configure relationships
+            entity.HasOne(ug => ug.User)
+                .WithMany(u => u.UserGroups)
+                .HasForeignKey(ug => ug.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+                
+            entity.HasOne(ug => ug.Group)
+                .WithMany(g => g.UserGroups)
+                .HasForeignKey(ug => ug.GroupId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        // Seed data - commented out to use DatabaseSeeder instead
+        // SeedData(modelBuilder);
     }
 
     private void SeedData(ModelBuilder modelBuilder)

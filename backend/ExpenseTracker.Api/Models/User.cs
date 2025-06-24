@@ -32,7 +32,9 @@ namespace ExpenseTracker.Api.Models
         
         public DateTime? LastLoginAt { get; set; }
 
-        // Navigation property
+        // Navigation properties
         public virtual ICollection<Expense> Expenses { get; set; } = new List<Expense>();
+        public virtual ICollection<UserGroup> UserGroups { get; set; } = new List<UserGroup>();
+        public virtual ICollection<Group> CreatedGroups { get; set; } = new List<Group>();
     }
 }

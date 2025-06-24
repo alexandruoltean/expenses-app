@@ -31,13 +31,13 @@ public class ExpensesController : ControllerBase
     }
 
     /// <summary>
-    /// Get all expenses
+    /// Get all expenses (optionally filtered by group)
     /// </summary>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpenses()
+    public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpenses([FromQuery] int? groupId = null)
     {
         var userId = GetCurrentUserId();
-        var expenses = await _expenseService.GetAllExpensesAsync(userId);
+        var expenses = await _expenseService.GetAllExpensesAsync(userId, groupId);
         return Ok(expenses);
     }
 
@@ -133,10 +133,10 @@ public class ExpensesController : ControllerBase
     }
 
     /// <summary>
-    /// Get expenses by month
+    /// Get expenses by month (optionally filtered by group)
     /// </summary>
     [HttpGet("month/{year}/{month}")]
-    public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpensesByMonth(int year, int month)
+    public async Task<ActionResult<IEnumerable<ExpenseDto>>> GetExpensesByMonth(int year, int month, [FromQuery] int? groupId = null)
     {
         try
         {
@@ -144,7 +144,7 @@ public class ExpensesController : ControllerBase
                 return BadRequest("Month must be between 1 and 12");
 
             var userId = GetCurrentUserId();
-            var expenses = await _expenseService.GetExpensesByMonthAsync(year, month, userId);
+            var expenses = await _expenseService.GetExpensesByMonthAsync(year, month, userId, groupId);
             return Ok(expenses);
         }
         catch (Exception ex)
@@ -155,15 +155,15 @@ public class ExpensesController : ControllerBase
     }
 
     /// <summary>
-    /// Get total expenses by category
+    /// Get total expenses by category (optionally filtered by group)
     /// </summary>
     [HttpGet("by-category")]
-    public async Task<ActionResult<IEnumerable<ExpenseCategoryTotalDto>>> GetExpensesByCategory()
+    public async Task<ActionResult<IEnumerable<ExpenseCategoryTotalDto>>> GetExpensesByCategory([FromQuery] int? groupId = null)
     {
         try
         {
             var userId = GetCurrentUserId();
-            var categoryTotals = await _expenseService.GetExpensesTotalByCategoryAsync(userId);
+            var categoryTotals = await _expenseService.GetExpensesTotalByCategoryAsync(userId, groupId);
             return Ok(categoryTotals);
         }
         catch (Exception ex)
@@ -174,15 +174,15 @@ public class ExpensesController : ControllerBase
     }
 
     /// <summary>
-    /// Get total of all expenses
+    /// Get total of all expenses (optionally filtered by group)
     /// </summary>
     [HttpGet("total")]
-    public async Task<ActionResult<decimal>> GetTotalExpenses()
+    public async Task<ActionResult<decimal>> GetTotalExpenses([FromQuery] int? groupId = null)
     {
         try
         {
             var userId = GetCurrentUserId();
-            var total = await _expenseService.GetTotalExpensesAsync(userId);
+            var total = await _expenseService.GetTotalExpensesAsync(userId, groupId);
             return Ok(total);
         }
         catch (Exception ex)

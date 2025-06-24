@@ -8,7 +8,7 @@ import { LoginRequest, RegisterRequest, AuthResponse, User } from '../models/aut
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = 'http://localhost:5050/api/auth';
+  private apiUrl = 'http://localhost:5000/api/auth';
   private tokenKey = 'auth_token';
   private userKey = 'current_user';
   

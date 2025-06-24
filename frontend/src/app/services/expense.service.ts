@@ -1,9 +1,10 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
-import { tap } from 'rxjs/operators';
+import { HttpClient, HttpParams } from '@angular/common/http';
+import { Observable, BehaviorSubject, combineLatest } from 'rxjs';
+import { tap, switchMap } from 'rxjs/operators';
 import { Expense, CreateExpenseRequest, UpdateExpenseRequest } from '../models/expense.model';
 import { environment } from '../../environments/environment';
+import { GroupService } from './group.service';
 
 @Injectable({
   providedIn: 'root'
@@ -13,10 +14,23 @@ export class ExpenseService {
   private expensesSubject = new BehaviorSubject<Expense[]>([]);
   public expenses$ = this.expensesSubject.asObservable();
 
-  constructor(private http: HttpClient) {}
+  constructor(
+    private http: HttpClient,
+    private groupService: GroupService
+  ) {
+    // Auto-load expenses when current group changes
+    this.groupService.currentGroup$.subscribe(group => {
+      this.loadExpenses(group?.id);
+    });
+  }
 
-  getExpenses(): Observable<Expense[]> {
-    return this.http.get<Expense[]>(this.apiUrl).pipe(
+  getExpenses(groupId?: number): Observable<Expense[]> {
+    let params = new HttpParams();
+    if (groupId !== undefined) {
+      params = params.set('groupId', groupId.toString());
+    }
+    
+    return this.http.get<Expense[]>(this.apiUrl, { params }).pipe(
       tap(expenses => this.expensesSubject.next(expenses))
     );
   }
@@ -43,10 +57,14 @@ export class ExpenseService {
     );
   }
 
+  // Load expenses for specific context (group or personal)
+  loadExpenses(groupId?: number): void {
+    this.getExpenses(groupId).subscribe();
+  }
+
   private refreshExpenses(): void {
-    this.http.get<Expense[]>(this.apiUrl).subscribe(
-      expenses => this.expensesSubject.next(expenses)
-    );
+    const currentGroup = this.groupService.getCurrentGroup();
+    this.loadExpenses(currentGroup?.id);
   }
 
   getExpensesByMonth(year: number, month: number): Observable<Expense[]> {

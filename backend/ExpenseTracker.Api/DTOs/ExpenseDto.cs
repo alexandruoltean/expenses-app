@@ -12,6 +12,9 @@ public class ExpenseDto
     public DateTime Date { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
+    public int? GroupId { get; set; }
+    public string? GroupName { get; set; }
+    public string CreatedByUsername { get; set; } = string.Empty;
 }
 
 public class CreateExpenseDto
@@ -33,6 +36,8 @@ public class CreateExpenseDto
     
     [Required]
     public DateTime Date { get; set; }
+    
+    public int? GroupId { get; set; }
 }
 
 public class UpdateExpenseDto

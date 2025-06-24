@@ -32,6 +32,10 @@ public class Expense
     [Required]
     public Guid UserId { get; set; }
     
-    // Navigation property
+    // Foreign key for Group (nullable - personal expenses won't have a group)
+    public int? GroupId { get; set; }
+    
+    // Navigation properties
     public virtual User? User { get; set; }
+    public virtual Group? Group { get; set; }
 }

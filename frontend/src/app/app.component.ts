@@ -9,8 +9,10 @@ import { MatMenuModule } from '@angular/material/menu';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ThemeService } from './services/theme.service';
 import { AuthService } from './services/auth.service';
+import { GroupService } from './services/group.service';
 import { AddExpenseDialogComponent } from './components/add-expense-dialog/add-expense-dialog.component';
 import { Observable } from 'rxjs';
+import { Group } from './models/group.model';
 
 @Component({
   selector: 'app-root',
@@ -23,15 +25,28 @@ import { Observable } from 'rxjs';
     MatButtonModule,
     MatIconModule,
     MatDialogModule,
-    MatMenuModule
+    MatMenuModule,
   ],
   template: `
     <mat-toolbar color="primary" class="sticky-toolbar" *ngIf="isAuthenticated$ | async">
       <span>Expense Tracker</span>
+      
+      <button mat-stroked-button [matMenuTriggerFor]="contextMenu" class="add-expense-btn">
+        {{getCurrentContextName()}}
+        <mat-icon>arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #contextMenu="matMenu">
+        <button mat-menu-item (click)="selectContext(null)">Personal</button>
+        <button mat-menu-item *ngFor="let group of groups$ | async" (click)="selectContext(group)">
+          {{group.name}}
+        </button>
+      </mat-menu>
+      
       <button mat-raised-button color="accent" (click)="openAddExpenseDialog()" class="add-expense-btn">
         <mat-icon>add</mat-icon>
         Add Expense
       </button>
+      
       <span class="spacer"></span>
       <button mat-icon-button (click)="toggleTheme()" class="theme-toggle" [attr.aria-label]="isDarkTheme ? 'Switch to light mode' : 'Switch to dark mode'">
         <mat-icon>{{isDarkTheme ? 'light_mode' : 'dark_mode'}}</mat-icon>
@@ -62,6 +77,8 @@ import { Observable } from 'rxjs';
       right: 0;
       z-index: 1000;
       box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      display: flex;
+      align-items: center;
     }
     
     .spacer {
@@ -75,8 +92,9 @@ import { Observable } from 'rxjs';
     }
     
     .add-expense-btn {
-      margin-left: 16px;
+      margin-right: 8px;
     }
+    
     
     .theme-toggle {
       margin-right: 8px;
@@ -99,20 +117,42 @@ export class AppComponent implements OnInit {
   isDarkTheme = false;
   isAuthenticated$: Observable<boolean>;
   currentUser$: Observable<any>;
+  groups$!: Observable<Group[]>;
+  currentGroup: Group | null = null;
 
   constructor(
     private themeService: ThemeService,
     private authService: AuthService,
+    private groupService: GroupService,
     private dialog: MatDialog,
     private router: Router,
     private snackBar: MatSnackBar
   ) {
     this.isAuthenticated$ = this.authService.isAuthenticated$;
     this.currentUser$ = this.authService.currentUser$;
+    this.groups$ = this.groupService.groups$;
+    
+    this.groupService.currentGroup$.subscribe(group => {
+      this.currentGroup = group;
+    });
   }
 
   ngOnInit() {
     this.isDarkTheme = this.themeService.isDarkTheme();
+    
+    this.isAuthenticated$.subscribe(isAuth => {
+      if (isAuth) {
+        this.groupService.loadUserGroups();
+      }
+    });
+  }
+
+  getCurrentContextName(): string {
+    return this.currentGroup ? this.currentGroup.name : 'Personal';
+  }
+
+  selectContext(group: Group | null): void {
+    this.groupService.setCurrentGroup(group);
   }
 
   toggleTheme() {
@@ -128,6 +168,7 @@ export class AppComponent implements OnInit {
     });
     this.router.navigate(['/login']);
   }
+
 
   openAddExpenseDialog() {
     const dialogRef = this.dialog.open(AddExpenseDialogComponent, {
